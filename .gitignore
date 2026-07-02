@@ -46,3 +46,6 @@ app.*.map.json
 
 # Env (secrets)
 .env
+
+# Reportes de cobertura
+coverage/

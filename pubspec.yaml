@@ -59,7 +59,11 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  # Generación de código (solo para Freezed)
+  # Pruebas de integración (driver de Flutter)
+  integration_test:
+    sdk: flutter
+
+  # Generación de código (Freezed + mocks de mockito)
   build_runner: ^2.4.13
   # Modelado inmutable y uniones selladas
   freezed: ^2.5.7
@@ -67,8 +71,8 @@ dev_dependencies:
   json_serializable: ^6.8.0
   # Generador del cliente REST (retrofit)
   retrofit_generator: ^9.7.0
-  # Dobles de prueba para tests unitarios
-  mocktail: ^1.0.4
+  # Dobles de prueba para tests unitarios (con codegen)
+  mockito: ^5.4.4
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

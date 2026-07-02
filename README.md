@@ -82,14 +82,28 @@ flutter run
 ## Pruebas
 
 ```bash
-flutter test
+# Unitarias (3 capas) + reporte de cobertura
+flutter test --coverage
+
+# Integración (driver de Flutter) — requiere emulador/dispositivo
+flutter test integration_test/app_test.dart -d <device>
+# o con el runner clásico:
+flutter drive --driver=test_driver/integration_test.dart \
+  --target=integration_test/app_test.dart
 ```
 
-Cubren, con `mocktail` + `ProviderContainer`, los ViewModels de **catálogo**
-(carga Popular/Top Rated, paginación, error), **búsqueda** (término vacío = sin
-búsqueda, sin resultados, error, restaurar vista, búsquedas encadenadas → prevalece
-la última) y **detalle** (éxito/error), más widget tests de **debounce** real,
-render del **catálogo** y del **detalle**, y **navegación** listado ↔ detalle ↔ volver.
+Estrategia (dobles con **mockito** + `@GenerateNiceMocks`, estado con
+`container.listen(..., fireImmediately: true)`):
+
+- **Unitarias por capa** — *domain* (`MovieUseCases`, `MovieGenre`), *data*
+  (`fromJson` de modelos + `GenresConverter`, `MovieRepositoryRemote`,
+  `MovieDataSourceRemote`, `ApiConfig`, manejo de `ApiResponse`) y *presentation*
+  (transiciones `UIState` de los ViewModels + reglas de paginación/búsqueda/detalle).
+- **Integración** — recorridos reales con datos simulados: catálogo, búsqueda,
+  listado ↔ detalle ↔ volver, cargar más al hacer scroll.
+
+Cobertura de la lógica ≥ 80% (`coverage/lcov.info`), excluyendo código generado
+(`*.g.dart`/`*.freezed.dart`/mocks), la UI (cubierta por integración) y el wiring de DI.
 
 ## Estado / pendiente
 
