@@ -1,0 +1,17 @@
+{
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+  "editor.rulers": [120],
+  "editor.wordWrapColumn": 120,
+  "editor.formatOnSave": true,
+  "dart.lineLength": 120,
+  "[dart]": {
+    "editor.defaultFormatter": "Dart-Code.dart-code",
+    "editor.formatOnSave": true,
+    "editor.rulers": [120]
+  },
+  "cSpell.words": [
+    "DSCTA"
+  ]
+}
