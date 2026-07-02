@@ -6,22 +6,22 @@ system** reutilizable (estética tipo Netflix, dark).
 
 ## Tech stack
 
-| Herramienta | Para qué se usa |
-|---|---|
-| **Flutter 3.38.6 / Dart 3.10.7** | Framework y lenguaje |
-| **flutter_riverpod** | Manejo de estado (MVVM) e inyección de dependencias |
-| **freezed** + **build_runner** | Modelos inmutables / uniones selladas + generación de código |
-| **json_serializable** | (De)serialización JSON de los modelos |
-| **dio** + **retrofit** | Cliente HTTP tipado hacia la API de TMDB |
-| **fluro** | Rutas y navegación |
-| **cached_network_image** | Carga y caché de imágenes (pósters / backdrops) |
-| **flutter_dotenv** | Lee el token de TMDB desde `.env` (fuera de git) |
-| **equatable** | Igualdad por valor de entidades y estados |
-| **mockito** + **integration_test** | Dobles de prueba (codegen) y pruebas E2E |
+| Herramienta                        | Para qué se usa                                              |
+| ---------------------------------- | ------------------------------------------------------------ |
+| **Flutter 3.38.6 / Dart 3.10.7**   | Framework y lenguaje                                         |
+| **flutter_riverpod**               | Manejo de estado (MVVM) e inyección de dependencias          |
+| **freezed** + **build_runner**     | Modelos inmutables / uniones selladas + generación de código |
+| **json_serializable**              | (De)serialización JSON de los modelos                        |
+| **dio** + **retrofit**             | Cliente HTTP tipado hacia la API de TMDB                     |
+| **fluro**                          | Rutas y navegación                                           |
+| **cached_network_image**           | Carga y caché de imágenes (pósters / backdrops)              |
+| **flutter_dotenv**                 | Lee el token de TMDB desde `.env` (fuera de git)             |
+| **equatable**                      | Igualdad por valor de entidades y estados                    |
+| **mockito** + **integration_test** | Dobles de prueba (codegen) y pruebas E2E                     |
 
 ## Arquitectura
 
-**Clean Architecture** organizada *feature-first* (+ una capa `core/` transversal), con el
+**Clean Architecture** organizada _feature-first_ (+ una capa `core/` transversal), con el
 patrón **MVVM** en la capa de presentación. La dependencia siempre apunta hacia el dominio:
 
 ```mermaid
@@ -48,7 +48,7 @@ Desarrollado con **Claude Code (modelo Claude Opus 4.7)** siguiendo **Spec-Drive
 Development** (Spec Kit): la especificación guía el código, no al revés.
 
 A partir de los **requerimientos funcionales y no funcionales** el trabajo se dividió en
-**frentes**; cada frente se construyó como una *feature* con el **mismo flujo**:
+**frentes**; cada frente se construyó como una _feature_ con el **mismo flujo**:
 
 ```
 spec  →  clarify  →  plan  →  tasks  →  implement  →  verificar  →  ADR
@@ -58,12 +58,12 @@ Es decir: se escribe la **especificación**, se resuelven **ambigüedades**, se 
 se **desglosa en tareas**, se **implementa**, se **verifica** que todo funciona y recién ahí
 se documenta la decisión en un **ADR**; luego se testea y se pasa al siguiente frente.
 
-| # | Frente | Motivado por | Documento |
-|---|---|---|---|
-| 001 | Arquitectura base | Requerimiento de **escalabilidad** | [ADR-001](documentacion/ADRs/ADR-001-arquitectura-de-la-app.md) |
-| 002 | Integración con el servicio **TMDB** | Consumir datos reales | [ADR-002](documentacion/ADRs/ADR-002-integracion-tmdb.md) |
-| 003 | **Design system** + pantallas | UI reutilizable (catálogo, búsqueda, detalle) | [ADR-003](documentacion/ADRs/ADR-003-design-system-y-pantallas.md) |
-| 004 | Tests **unitarios + integración** | Calidad y no-regresión | [ADR-004](documentacion/ADRs/ADR-004-estrategia-de-testing.md) |
+| #   | Frente                               | Motivado por                                  | Documento                                                          |
+| --- | ------------------------------------ | --------------------------------------------- | ------------------------------------------------------------------ |
+| 001 | Arquitectura base                    | Requerimiento de **escalabilidad**            | [ADR-001](documentacion/ADRs/ADR-001-arquitectura-de-la-app.md)    |
+| 002 | Integración con el servicio **TMDB** | Consumir datos reales                         | [ADR-002](documentacion/ADRs/ADR-002-integracion-tmdb.md)          |
+| 003 | **Design system** + pantallas        | UI reutilizable (catálogo, búsqueda, detalle) | [ADR-003](documentacion/ADRs/ADR-003-design-system-y-pantallas.md) |
+| 004 | Tests **unitarios + integración**    | Calidad y no-regresión                        | [ADR-004](documentacion/ADRs/ADR-004-estrategia-de-testing.md)     |
 
 Las especificaciones de cada feature viven en `specs/`.
 
@@ -134,16 +134,11 @@ Dobles con **mockito**; las transiciones de estado se aseveran con
 **Cobertura actual: 92.1% de la lógica** (66/66 pruebas verdes) — se excluye código
 generado, UI y wiring de DI; la UI se valida por integración/E2E.
 
-| Capa | Cobertura |
-|---|---|
-| Domain | 100.0% |
-| Data | 82.9% |
-| Presentation (ViewModels + estados) | 92.6% |
-| Core / API | 93.8% |
+| Capa                                | Cobertura |
+| ----------------------------------- | --------- |
+| Domain                              | 100.0%    |
+| Data                                | 82.9%     |
+| Presentation (ViewModels + estados) | 92.6%     |
+| Core / API                          | 93.8%     |
 
 Detalle de la estrategia en [ADR-004](documentacion/ADRs/ADR-004-estrategia-de-testing.md).
-
-## Pendiente
-
-Mejoras futuras: dominio de **Series** (`/tv/*`), **favoritos/watchlist** y empaquetar la
-fuente Inter (hoy se usa la del sistema con la misma escala).

@@ -28,9 +28,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // La búsqueda la orquesta el ViewModel: la barra llama directamente a sus
-    // métodos (search decide término vacío = restaurar catálogo; clear limpia).
-    final SearchViewModel searchViewModel = ref.watch(searchViewModelProvider.notifier);
+    final searchViewModel = ref.watch(searchViewModelProvider.notifier);
     return Scaffold(
       body: CustomScrollView(
         controller: _scrollController,
