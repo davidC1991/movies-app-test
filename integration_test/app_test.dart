@@ -20,6 +20,10 @@ void main() {
 
   late MockMovieRepository repository;
 
+  // El router de fluro es un singleton estático: registrar las rutas una sola
+  // vez (definirlas dos veces lanza "Default route was already defined").
+  setUpAll(AppRouter.setup);
+
   setUp(() {
     repository = MockMovieRepository();
     when(repository.getPopular(page: anyNamed('page')))
@@ -29,7 +33,6 @@ void main() {
     when(repository.search(any, page: anyNamed('page')))
         .thenAnswer((_) async => pageResult([1]));
     when(repository.getDetail(any)).thenAnswer((_) async => movieDetailFixture);
-    AppRouter.setup();
   });
 
   Widget buildApp() => ProviderScope(
