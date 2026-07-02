@@ -6,7 +6,8 @@ import '../providers/home_providers.dart';
 import 'paged_movies.dart';
 
 /// Término de búsqueda activo. Cadena vacía = modo catálogo (vista por
-/// defecto). Lo actualiza la `HomeScreen` a partir de la barra de búsqueda.
+/// defecto). Lo mantiene el `SearchViewModel` (única fuente de verdad del
+/// modo); la UI sólo lo **lee** para decidir qué vista mostrar.
 final searchQueryProvider = StateProvider<String>((ref) => '');
 
 /// ViewModel (MVVM) de la búsqueda. La barra de búsqueda ya aplica el debounce
@@ -26,7 +27,8 @@ class SearchViewModel extends Notifier<UIState<PagedMovies>> {
       const UISuccess(PagedMovies(items: [], page: 0, hasMore: false));
 
   /// Ejecuta una búsqueda por [rawTerm]. Un término en blanco se trata como
-  /// "sin búsqueda" (restaura la vista por defecto).
+  /// "sin búsqueda" (restaura la vista por defecto). Actualiza además el modo
+  /// (`searchQueryProvider`) para que la UI muestre los resultados.
   Future<void> search(String rawTerm) async {
     final term = rawTerm.trim();
     if (term.isEmpty) {
@@ -34,6 +36,7 @@ class SearchViewModel extends Notifier<UIState<PagedMovies>> {
       return;
     }
     _activeTerm = term;
+    ref.read(searchQueryProvider.notifier).state = term;
     state = const UILoading();
     try {
       final result = await ref.read(movieUseCasesProvider).search(term, page: 1);
@@ -46,9 +49,11 @@ class SearchViewModel extends Notifier<UIState<PagedMovies>> {
     }
   }
 
-  /// Restaura el estado idle (vista por defecto = catálogo).
+  /// Restaura el modo catálogo (vista por defecto): limpia el término activo,
+  /// el modo (`searchQueryProvider`) y el estado idle.
   void clear() {
     _activeTerm = '';
+    ref.read(searchQueryProvider.notifier).state = '';
     state = const UISuccess(PagedMovies(items: [], page: 0, hasMore: false));
   }
 

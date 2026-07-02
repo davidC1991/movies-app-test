@@ -43,17 +43,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _onSearchChanged(String term) {
-    final query = term.trim();
-    ref.read(searchQueryProvider.notifier).state = query;
-    if (query.isEmpty) {
-      ref.read(searchViewModelProvider.notifier).clear();
-    } else {
-      ref.read(searchViewModelProvider.notifier).search(query);
-    }
+    // El ViewModel decide (término en blanco = restaurar catálogo) y mantiene
+    // el modo (`searchQueryProvider`).
+    ref.read(searchViewModelProvider.notifier).search(term);
   }
 
   void _onSearchCleared() {
-    ref.read(searchQueryProvider.notifier).state = '';
     ref.read(searchViewModelProvider.notifier).clear();
   }
 
