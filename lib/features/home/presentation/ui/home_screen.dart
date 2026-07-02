@@ -89,6 +89,8 @@ class _HomeContent extends ConsumerWidget {
   }
 
   void _openDetail(BuildContext context, int movieId) {
+    // Cierra el teclado (si venía de la búsqueda) antes de entrar al detalle.
+    FocusManager.instance.primaryFocus?.unfocus();
     Navigator.of(context).pushNamed(RoutePaths.movieDetailOf(movieId));
   }
 }
