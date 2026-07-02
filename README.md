@@ -81,8 +81,24 @@ Las especificaciones de cada feature viven en `specs/`.
 
 ```bash
 flutter pub get
-dart run build_runner build --delete-conflicting-outputs   # genera *.g.dart / *.freezed.dart / mocks
+dart run build_runner build --delete-conflicting-outputs   # genera código (ver abajo)
 flutter run
+```
+
+## Regenerar código
+
+Genera `*.g.dart` (json_serializable / retrofit), `*.freezed.dart` (freezed) y
+`test/helpers/mocks.mocks.dart` (mockito):
+
+```bash
+# Una vez
+dart run build_runner build --delete-conflicting-outputs
+
+# En modo watch (regenera al guardar)
+dart run build_runner watch --delete-conflicting-outputs
+
+# Limpiar salidas generadas
+dart run build_runner clean
 ```
 
 ## Pantallas
@@ -95,10 +111,22 @@ flutter run
 ## Pruebas
 
 ```bash
-flutter test --coverage                                                    # unitarias (3 capas) + cobertura
-flutter test integration_test/flujos_integracion_mocks_test.dart -d <device>  # integración con mocks
-flutter test integration_test/flujos_e2e_real_test.dart -d <device>           # E2E real vs TMDB
+# Unitarias (3 capas)
+flutter test                                                               # toda la suite
+flutter test --coverage                                                    # + reporte coverage/lcov.info
+flutter test test/features/home/presentation/viewmodels/                   # solo una carpeta/archivo
+
+# Integración / E2E (requieren emulador o dispositivo; ver `flutter devices`)
+flutter test integration_test/flujos_integracion_mocks_test.dart -d <device>  # con datos simulados (mocks)
+flutter test integration_test/flujos_e2e_real_test.dart -d <device>           # E2E real vs TMDB (+ .env)
+
+# Análisis estático y formato
+flutter analyze
+dart format .
 ```
+
+> Si cambiaste algún contrato mockeado, regenera los mocks antes de correr los tests
+> (ver [Regenerar código](#regenerar-código)).
 
 Dobles con **mockito**; las transiciones de estado se aseveran con
 `container.listen(..., fireImmediately: true)`. Cobertura de la lógica ≥ 80% (se excluye
