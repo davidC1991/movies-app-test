@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:movies/design_system/design_system.dart';
 
 import '../../../../../core/state/ui_state.dart';
-import '../../viewmodels/media_card_mapper.dart';
+import '../../utils/media_card_mapper.dart';
 import '../../viewmodels/paged_movies.dart';
 import '../../viewmodels/search_view_model.dart';
 

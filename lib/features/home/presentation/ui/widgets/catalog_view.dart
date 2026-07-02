@@ -5,7 +5,7 @@ import 'package:movies/design_system/design_system.dart';
 import '../../../../../core/state/ui_state.dart';
 import '../../../domain/entities/movie.dart';
 import '../../viewmodels/catalog_view_model.dart';
-import '../../viewmodels/media_card_mapper.dart';
+import '../../utils/media_card_mapper.dart';
 import '../../viewmodels/paged_movies.dart';
 
 /// Contenido del catálogo (sliver): filas "Populares" y "Mejor valoradas"
