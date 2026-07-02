@@ -3,7 +3,7 @@ import 'package:movies/features/home/data/models/movie_detail_model.dart';
 import 'package:movies/features/home/domain/entities/movie_detail.dart';
 import 'package:movies/features/home/domain/enums/movie_genre.dart';
 
-import '../../fixtures/json_fixtures.dart';
+import '../../../../fixtures/json_fixtures.dart';
 
 void main() {
   group('MovieDetailModel.fromJson', () {

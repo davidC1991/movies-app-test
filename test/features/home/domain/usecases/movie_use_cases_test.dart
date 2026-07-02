@@ -2,8 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:movies/features/home/domain/usecases/movie_use_cases.dart';
 
-import '../../fixtures/movie_fixtures.dart';
-import '../../helpers/mocks.mocks.dart';
+import '../../../../fixtures/movie_fixtures.dart';
+import '../../../../helpers/mocks.mocks.dart';
 
 void main() {
   late MockMovieRepository repository;

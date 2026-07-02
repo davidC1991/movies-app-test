@@ -4,9 +4,9 @@ import 'package:movies/core/state/ui_state.dart';
 import 'package:movies/features/home/presentation/viewmodels/catalog_view_model.dart';
 import 'package:movies/features/home/presentation/viewmodels/states/catalog_state.dart';
 
-import '../../fixtures/movie_fixtures.dart';
-import '../../helpers/mocks.mocks.dart';
-import '../../helpers/provider_test_utils.dart';
+import '../../../../fixtures/movie_fixtures.dart';
+import '../../../../helpers/mocks.mocks.dart';
+import '../../../../helpers/provider_test_utils.dart';
 
 void main() {
   late MockMovieRepository repository;

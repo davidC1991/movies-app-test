@@ -7,7 +7,7 @@ import 'package:movies/features/home/data/models/movie_response_model.dart';
 import 'package:movies/features/home/data/repositories/movie_repository_remote.dart';
 import 'package:movies/features/home/domain/enums/movie_genre.dart';
 
-import '../../helpers/mocks.mocks.dart';
+import '../../../../helpers/mocks.mocks.dart';
 
 MovieResponseModel _response({int page = 1, int totalPages = 3}) => MovieResponseModel(
       page: page,

@@ -7,7 +7,7 @@ import 'package:movies/features/home/data/models/movie_detail_model.dart';
 import 'package:movies/features/home/data/models/movie_model.dart';
 import 'package:movies/features/home/data/models/movie_response_model.dart';
 
-import '../../helpers/mocks.mocks.dart';
+import '../../../../helpers/mocks.mocks.dart';
 
 void main() {
   late MockMovieService service;

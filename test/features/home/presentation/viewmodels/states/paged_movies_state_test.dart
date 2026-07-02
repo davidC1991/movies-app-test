@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:movies/features/home/presentation/viewmodels/states/paged_movies_state.dart';
 
-import '../../fixtures/movie_fixtures.dart';
+import '../../../../../fixtures/movie_fixtures.dart';
 
 void main() {
   group('PagedMoviesState', () {
