@@ -42,26 +42,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
   }
 
-  void _onSearchChanged(String term) {
-    // El ViewModel decide (término en blanco = restaurar catálogo) y mantiene
-    // el modo (`searchQueryProvider`).
-    ref.read(searchViewModelProvider.notifier).search(term);
-  }
-
-  void _onSearchCleared() {
-    ref.read(searchViewModelProvider.notifier).clear();
-  }
-
   @override
   Widget build(BuildContext context) {
+    // La búsqueda la orquesta el ViewModel: la barra llama directamente a sus
+    // métodos (search decide término vacío = restaurar catálogo; clear limpia).
+    final searchViewModel = ref.read(searchViewModelProvider.notifier);
     return Scaffold(
       body: CustomScrollView(
         controller: _scrollController,
         slivers: [
           CatalogSearchAppBar(
             title: 'Películas',
-            onSearchChanged: _onSearchChanged,
-            onSearchCleared: _onSearchCleared,
+            onSearchChanged: searchViewModel.search,
+            onSearchCleared: searchViewModel.clear,
           ),
           const _HomeContent(),
         ],
