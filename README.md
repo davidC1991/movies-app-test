@@ -129,9 +129,19 @@ dart format .
 > (ver [Regenerar código](#regenerar-código)).
 
 Dobles con **mockito**; las transiciones de estado se aseveran con
-`container.listen(..., fireImmediately: true)`. Cobertura de la lógica ≥ 80% (se excluye
-código generado, UI y wiring de DI; la UI se valida por integración/E2E). Detalle en
-[ADR-004](documentacion/ADRs/ADR-004-estrategia-de-testing.md).
+`container.listen(..., fireImmediately: true)`.
+
+**Cobertura actual: 92.1% de la lógica** (66/66 pruebas verdes) — se excluye código
+generado, UI y wiring de DI; la UI se valida por integración/E2E.
+
+| Capa | Cobertura |
+|---|---|
+| Domain | 100.0% |
+| Data | 82.9% |
+| Presentation (ViewModels + estados) | 92.6% |
+| Core / API | 93.8% |
+
+Detalle de la estrategia en [ADR-004](documentacion/ADRs/ADR-004-estrategia-de-testing.md).
 
 ## Pendiente
 
