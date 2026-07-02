@@ -6,7 +6,7 @@ import '../../../../../core/state/ui_state.dart';
 import '../../../domain/entities/movie.dart';
 import '../../viewmodels/catalog_view_model.dart';
 import '../../utils/media_card_mapper.dart';
-import '../../viewmodels/paged_movies.dart';
+import '../../viewmodels/states/paged_movies_state.dart';
 
 /// Contenido del catálogo (sliver): filas "Populares" y "Mejor valoradas"
 /// con sus estados de carga / error. Cada fila pagina en horizontal.
@@ -59,7 +59,7 @@ class CatalogView extends ConsumerWidget {
 /// (scroll infinito) y el footer de carga/reintento.
 class _CategoryRow extends StatelessWidget {
   final String title;
-  final PagedMovies paged;
+  final PagedMoviesState paged;
   final VoidCallback onLoadMore;
   final VoidCallback onRetryLoadMore;
   final void Function(int movieId) onTapMovie;

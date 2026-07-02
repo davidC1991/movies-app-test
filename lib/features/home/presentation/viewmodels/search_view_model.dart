@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/api/remote/error_message.dart';
 import '../../../../core/state/ui_state.dart';
 import '../providers/home_providers.dart';
-import 'paged_movies.dart';
+import 'states/paged_movies_state.dart';
 
 /// Término de búsqueda activo. Cadena vacía = modo catálogo (vista por
 /// defecto). Lo mantiene el `SearchViewModel` (única fuente de verdad del
@@ -15,16 +15,16 @@ final searchQueryProvider = StateProvider<String>((ref) => '');
 /// se pagina y se restaura la vista al limpiar. Estado inicial = éxito vacío
 /// (idle), que la UI interpreta como "sin búsqueda".
 final searchViewModelProvider =
-    NotifierProvider<SearchViewModel, UIState<PagedMovies>>(SearchViewModel.new);
+    NotifierProvider<SearchViewModel, UIState<PagedMoviesState>>(SearchViewModel.new);
 
-class SearchViewModel extends Notifier<UIState<PagedMovies>> {
+class SearchViewModel extends Notifier<UIState<PagedMoviesState>> {
   /// Término de la búsqueda en curso. Se usa para descartar respuestas
   /// obsoletas cuando el usuario cambia de término durante un request.
   String _activeTerm = '';
 
   @override
-  UIState<PagedMovies> build() =>
-      const UISuccess(PagedMovies(items: [], page: 0, hasMore: false));
+  UIState<PagedMoviesState> build() =>
+      const UISuccess(PagedMoviesState(items: [], page: 0, hasMore: false));
 
   /// Ejecuta una búsqueda por [rawTerm]. Un término en blanco se trata como
   /// "sin búsqueda" (restaura la vista por defecto). Actualiza además el modo
@@ -42,7 +42,7 @@ class SearchViewModel extends Notifier<UIState<PagedMovies>> {
       final result = await ref.read(movieUseCasesProvider).search(term, page: 1);
       // Búsquedas encadenadas: prevalece el último término escrito.
       if (_activeTerm != term) return;
-      state = UISuccess(PagedMovies.fromPage(result));
+      state = UISuccess(PagedMoviesState.fromPage(result));
     } catch (error) {
       if (_activeTerm != term) return;
       state = UIFail(messageFromError(error));
@@ -54,7 +54,7 @@ class SearchViewModel extends Notifier<UIState<PagedMovies>> {
   void clear() {
     _activeTerm = '';
     ref.read(searchQueryProvider.notifier).state = '';
-    state = const UISuccess(PagedMovies(items: [], page: 0, hasMore: false));
+    state = const UISuccess(PagedMoviesState(items: [], page: 0, hasMore: false));
   }
 
   /// Reintenta la búsqueda del término actual (tras un error).
@@ -69,7 +69,7 @@ class SearchViewModel extends Notifier<UIState<PagedMovies>> {
   Future<void> _loadMore({bool force = false}) async {
     if (_activeTerm.isEmpty) return;
     final currentState = state;
-    if (currentState is! UISuccess<PagedMovies>) return;
+    if (currentState is! UISuccess<PagedMoviesState>) return;
     final currentPage = currentState.data;
     if (!currentPage.hasMore || currentPage.isLoadingMore) return;
     if (currentPage.loadMoreError && !force) return;
@@ -83,12 +83,12 @@ class SearchViewModel extends Notifier<UIState<PagedMovies>> {
       // El término pudo cambiar durante el await: descarta la página obsoleta.
       if (_activeTerm != term) return;
       final latestState = state;
-      if (latestState is! UISuccess<PagedMovies>) return;
+      if (latestState is! UISuccess<PagedMoviesState>) return;
       state = UISuccess(latestState.data.appendPage(result));
     } catch (_) {
       if (_activeTerm != term) return;
       final latestState = state;
-      if (latestState is UISuccess<PagedMovies>) {
+      if (latestState is UISuccess<PagedMoviesState>) {
         state = UISuccess(latestState.data.failLoadingMore());
       }
     }

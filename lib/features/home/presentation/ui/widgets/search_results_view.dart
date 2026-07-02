@@ -4,7 +4,7 @@ import 'package:movies/design_system/design_system.dart';
 
 import '../../../../../core/state/ui_state.dart';
 import '../../utils/media_card_mapper.dart';
-import '../../viewmodels/paged_movies.dart';
+import '../../viewmodels/states/paged_movies_state.dart';
 import '../../viewmodels/search_view_model.dart';
 
 /// Contenido de los resultados de búsqueda (sliver): grilla de pósters con sus
@@ -46,7 +46,7 @@ class SearchResultsView extends ConsumerWidget {
 
 /// Grilla de resultados + footer de paginación (carga/reintentar).
 class _ResultsList extends StatelessWidget {
-  final PagedMovies paged;
+  final PagedMoviesState paged;
   final void Function(int movieId) onTapMovie;
   final VoidCallback onRetryLoadMore;
 

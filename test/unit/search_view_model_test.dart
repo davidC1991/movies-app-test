@@ -6,7 +6,7 @@ import 'package:movies/features/home/domain/entities/movie.dart';
 import 'package:movies/features/home/domain/entities/page_result.dart';
 import 'package:movies/features/home/domain/usecases/movie_use_cases.dart';
 import 'package:movies/features/home/presentation/providers/home_providers.dart';
-import 'package:movies/features/home/presentation/viewmodels/paged_movies.dart';
+import 'package:movies/features/home/presentation/viewmodels/states/paged_movies_state.dart';
 import 'package:movies/features/home/presentation/viewmodels/search_view_model.dart';
 
 class MockMovieUseCases extends Mock implements MovieUseCases {}
@@ -31,15 +31,15 @@ void main() {
     return container;
   }
 
-  UISuccess<PagedMovies> readSuccess(ProviderContainer c) =>
-      c.read(searchViewModelProvider) as UISuccess<PagedMovies>;
+  UISuccess<PagedMoviesState> readSuccess(ProviderContainer c) =>
+      c.read(searchViewModelProvider) as UISuccess<PagedMoviesState>;
 
   group('SearchViewModel', () {
     test('estado idle inicial es éxito vacío (sin búsqueda)', () {
       final container = makeContainer();
       final state = container.read(searchViewModelProvider);
-      expect(state, isA<UISuccess<PagedMovies>>());
-      expect((state as UISuccess<PagedMovies>).data.items, isEmpty);
+      expect(state, isA<UISuccess<PagedMoviesState>>());
+      expect((state as UISuccess<PagedMoviesState>).data.items, isEmpty);
     });
 
     test('búsqueda con resultados', () async {
@@ -76,7 +76,7 @@ void main() {
       final container = makeContainer();
       await container.read(searchViewModelProvider.notifier).search('x');
 
-      expect(container.read(searchViewModelProvider), isA<UIFail<PagedMovies>>());
+      expect(container.read(searchViewModelProvider), isA<UIFail<PagedMoviesState>>());
     });
 
     test('clear restaura la vista por defecto', () async {

@@ -1,28 +1,10 @@
-import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/api/remote/error_message.dart';
 import '../../../../core/state/ui_state.dart';
 import '../providers/home_providers.dart';
-import 'paged_movies.dart';
-
-/// Datos del catálogo: dos colecciones paginadas independientes (Popular y
-/// Top Rated) que se muestran como filas estilo Netflix.
-class CatalogState extends Equatable {
-  final PagedMovies popular;
-  final PagedMovies topRated;
-
-  const CatalogState({required this.popular, required this.topRated});
-
-  CatalogState copyWith({PagedMovies? popular, PagedMovies? topRated}) =>
-      CatalogState(
-        popular: popular ?? this.popular,
-        topRated: topRated ?? this.topRated,
-      );
-
-  @override
-  List<Object?> get props => [popular, topRated];
-}
+import 'states/catalog_state.dart';
+import 'states/paged_movies_state.dart';
 
 /// ViewModel (MVVM) del catálogo. Carga en paralelo las primeras páginas de
 /// Popular y Top Rated y soporta scroll infinito por categoría. Expone
@@ -48,8 +30,8 @@ class CatalogViewModel extends Notifier<UIState<CatalogState>> {
       ]);
       state = UISuccess(
         CatalogState(
-          popular: PagedMovies.fromPage(results[0]),
-          topRated: PagedMovies.fromPage(results[1]),
+          popular: PagedMoviesState.fromPage(results[0]),
+          topRated: PagedMoviesState.fromPage(results[1]),
         ),
       );
     } catch (e) {
@@ -97,6 +79,6 @@ class CatalogViewModel extends Notifier<UIState<CatalogState>> {
   }
 
   /// Devuelve un `CatalogState` con la categoría indicada reemplazada.
-  CatalogState _patch(CatalogState data, bool isPopular, PagedMovies updated) =>
+  CatalogState _patch(CatalogState data, bool isPopular, PagedMoviesState updated) =>
       isPopular ? data.copyWith(popular: updated) : data.copyWith(topRated: updated);
 }

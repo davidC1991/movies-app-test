@@ -36,8 +36,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   /// horizontal, dentro de cada carrusel).
   void _onScroll() {
     if (ref.read(searchQueryProvider).isEmpty) return;
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 300) {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 300) {
       ref.read(searchViewModelProvider.notifier).loadMore();
     }
   }
@@ -46,7 +45,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     // La búsqueda la orquesta el ViewModel: la barra llama directamente a sus
     // métodos (search decide término vacío = restaurar catálogo; clear limpia).
-    final searchViewModel = ref.read(searchViewModelProvider.notifier);
+    final searchViewModel = ref.watch(searchViewModelProvider.notifier);
     return Scaffold(
       body: CustomScrollView(
         controller: _scrollController,

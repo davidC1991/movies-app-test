@@ -7,6 +7,7 @@ import 'package:movies/features/home/domain/entities/page_result.dart';
 import 'package:movies/features/home/domain/usecases/movie_use_cases.dart';
 import 'package:movies/features/home/presentation/providers/home_providers.dart';
 import 'package:movies/features/home/presentation/viewmodels/catalog_view_model.dart';
+import 'package:movies/features/home/presentation/viewmodels/states/catalog_state.dart';
 
 class MockMovieUseCases extends Mock implements MovieUseCases {}
 

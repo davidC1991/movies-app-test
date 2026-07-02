@@ -1,19 +1,19 @@
 import 'package:equatable/equatable.dart';
 
-import '../../domain/entities/movie.dart';
-import '../../domain/entities/page_result.dart';
+import '../../../domain/entities/movie.dart';
+import '../../../domain/entities/page_result.dart';
 
 /// Estado de datos de un listado paginado que exponen los ViewModels
 /// (dentro de `UIState.success`). Acumula los ítems de todas las páginas
 /// cargadas y centraliza las transiciones de scroll infinito.
-class PagedMovies extends Equatable {
+class PagedMoviesState extends Equatable {
   final List<Movie> items;
   final int page;
   final bool hasMore;
   final bool isLoadingMore;
   final bool loadMoreError;
 
-  const PagedMovies({
+  const PagedMoviesState({
     required this.items,
     required this.page,
     required this.hasMore,
@@ -22,18 +22,18 @@ class PagedMovies extends Equatable {
   });
 
   /// Primera página a partir de un `PageResult` del dominio.
-  factory PagedMovies.fromPage(PageResult<Movie> result) => PagedMovies(
+  factory PagedMoviesState.fromPage(PageResult<Movie> result) => PagedMoviesState(
         items: result.items,
         page: result.page,
         hasMore: result.hasMore,
       );
 
   /// Marca el inicio de la carga de la siguiente página (limpia error previo).
-  PagedMovies startLoadingMore() =>
+  PagedMoviesState startLoadingMore() =>
       copyWith(isLoadingMore: true, loadMoreError: false);
 
   /// Anexa la página recibida y limpia los flags de carga/error.
-  PagedMovies appendPage(PageResult<Movie> result) => copyWith(
+  PagedMoviesState appendPage(PageResult<Movie> result) => copyWith(
         items: [...items, ...result.items],
         page: result.page,
         hasMore: result.hasMore,
@@ -42,17 +42,17 @@ class PagedMovies extends Equatable {
       );
 
   /// Marca un fallo al cargar la siguiente página (permite reintentar).
-  PagedMovies failLoadingMore() =>
+  PagedMoviesState failLoadingMore() =>
       copyWith(isLoadingMore: false, loadMoreError: true);
 
-  PagedMovies copyWith({
+  PagedMoviesState copyWith({
     List<Movie>? items,
     int? page,
     bool? hasMore,
     bool? isLoadingMore,
     bool? loadMoreError,
   }) {
-    return PagedMovies(
+    return PagedMoviesState(
       items: items ?? this.items,
       page: page ?? this.page,
       hasMore: hasMore ?? this.hasMore,
