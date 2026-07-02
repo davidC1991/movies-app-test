@@ -11,7 +11,7 @@ reutilizable (Atomic Design, estética tipo Netflix, dark-only).
 - **flutter_riverpod** — state management + inyección de dependencias (manual, sin codegen)
 - **freezed** — modelado inmutable y uniones selladas (`build_runner` para generación)
 - **fluro** — routing / navegación
-- **flutter_test + mocktail** — pruebas unitarias
+- **flutter_test + mockito + integration_test** — pruebas unitarias, de integración y E2E
 
 ## Arquitectura
 
@@ -85,11 +85,15 @@ flutter run
 # Unitarias (3 capas) + reporte de cobertura
 flutter test --coverage
 
-# Integración (driver de Flutter) — requiere emulador/dispositivo
-flutter test integration_test/app_test.dart -d <device>
-# o con el runner clásico:
+# Integración con datos simulados (mocks) — determinista, sin red, requiere emulador
+flutter test integration_test/flujos_integracion_mocks_test.dart -d <device>
+
+# End-to-end REAL contra TMDB — requiere emulador + .env con TMDB_TOKEN + internet
+flutter test integration_test/flujos_e2e_real_test.dart -d <device>
+
+# o con el runner clásico (flutter drive):
 flutter drive --driver=test_driver/integration_test.dart \
-  --target=integration_test/app_test.dart
+  --target=integration_test/flujos_integracion_mocks_test.dart
 ```
 
 Estrategia (dobles con **mockito** + `@GenerateNiceMocks`, estado con
