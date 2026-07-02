@@ -90,10 +90,6 @@ flutter test integration_test/flujos_integracion_mocks_test.dart -d <device>
 
 # End-to-end REAL contra TMDB — requiere emulador + .env con TMDB_TOKEN + internet
 flutter test integration_test/flujos_e2e_real_test.dart -d <device>
-
-# o con el runner clásico (flutter drive):
-flutter drive --driver=test_driver/integration_test.dart \
-  --target=integration_test/flujos_integracion_mocks_test.dart
 ```
 
 Estrategia (dobles con **mockito** + `@GenerateNiceMocks`, estado con

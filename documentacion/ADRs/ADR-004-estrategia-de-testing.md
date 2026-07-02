@@ -41,7 +41,7 @@ que ejercitan la app de extremo a extremo (con datos simulados y contra la API r
 ### D5 — Dos niveles de prueba de la app completa (mismos flujos, distinto origen de datos)
 - **Integración con mocks** (`integration_test/flujos_integracion_mocks_test.dart`): repositorio mockeado con fixtures; **determinista**, sin red ni token → apta para CI.
 - **End-to-end real** (`integration_test/flujos_e2e_real_test.dart`): arranca `MoviesApp` **sin overrides**, pegando a la **API real de TMDB** con el `.env`; aserciones **resilientes** (`pumpUntilFound` con timeout) por la latencia/variabilidad de la red.
-- Ambos usan el **driver de Flutter** (`integration_test` + `IntegrationTestWidgetsFlutterBinding`); `test_driver/integration_test.dart` permite `flutter drive`.
+- Ambos usan el **driver de Flutter** (`integration_test` + `IntegrationTestWidgetsFlutterBinding`) y se ejecutan con `flutter test integration_test/…` (no requieren `flutter drive` ni `test_driver/`).
 - Los **widget tests** previos (con mocktail) se **eliminan**: sus flujos quedan cubiertos por la integración.
 
 ### D6 — Estructura de tests **espejo de `lib/`** (feature-first)
@@ -114,7 +114,6 @@ test/
 integration_test/
 ├── flujos_integracion_mocks_test.dart   # integración con datos simulados
 └── flujos_e2e_real_test.dart            # E2E contra TMDB real
-test_driver/integration_test.dart        # runner de flutter drive
 ```
 
 ## 6. Comandos
