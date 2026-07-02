@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:movies/core/state/ui_state.dart';
@@ -21,8 +22,8 @@ void main() {
       when(repository.search('batman', page: 1))
           .thenAnswer((_) async => pageResult([1, 2]));
 
-      final container = createContainer(repository);
-      final states = recordStates(container, searchViewModelProvider);
+      final ProviderContainer container = createContainer(repository);
+      final List<UIState<PagedMoviesState>> states = recordStates(container, searchViewModelProvider);
 
       await container.read(searchViewModelProvider.notifier).search('batman');
 
@@ -35,8 +36,8 @@ void main() {
     test('UILoading → UIFail ante error de red', () async {
       when(repository.search('x', page: 1)).thenThrow(Exception('net'));
 
-      final container = createContainer(repository);
-      final states = recordStates(container, searchViewModelProvider);
+      final ProviderContainer container = createContainer(repository);
+      final List<UIState<PagedMoviesState>> states = recordStates(container, searchViewModelProvider);
 
       await container.read(searchViewModelProvider.notifier).search('x');
 
@@ -47,7 +48,7 @@ void main() {
 
   group('SearchViewModel — reglas de negocio (US2)', () {
     test('término en blanco = sin búsqueda (no llama al repositorio)', () async {
-      final container = createContainer(repository);
+      final ProviderContainer container = createContainer(repository);
       await container.read(searchViewModelProvider.notifier).search('   ');
 
       expect(success(container).data.items, isEmpty);
@@ -57,7 +58,7 @@ void main() {
     test('sin coincidencias → éxito vacío', () async {
       when(repository.search('zzz', page: 1)).thenAnswer((_) async => pageResult([]));
 
-      final container = createContainer(repository);
+      final ProviderContainer container = createContainer(repository);
       await container.read(searchViewModelProvider.notifier).search('zzz');
 
       expect(success(container).data.items, isEmpty);
@@ -66,8 +67,8 @@ void main() {
     test('clear restaura la vista por defecto', () async {
       when(repository.search('batman', page: 1)).thenAnswer((_) async => pageResult([1]));
 
-      final container = createContainer(repository);
-      final notifier = container.read(searchViewModelProvider.notifier);
+      final ProviderContainer container = createContainer(repository);
+      final SearchViewModel notifier = container.read(searchViewModelProvider.notifier);
       await notifier.search('batman');
       notifier.clear();
 
@@ -80,11 +81,11 @@ void main() {
       );
       when(repository.search('fast', page: 1)).thenAnswer((_) async => pageResult([2]));
 
-      final container = createContainer(repository);
-      final notifier = container.read(searchViewModelProvider.notifier);
+      final ProviderContainer container = createContainer(repository);
+      final SearchViewModel notifier = container.read(searchViewModelProvider.notifier);
 
-      final slow = notifier.search('slow');
-      final fast = notifier.search('fast');
+      final Future<void> slow = notifier.search('slow');
+      final Future<void> fast = notifier.search('fast');
       await Future.wait([slow, fast]);
 
       expect(success(container).data.items.map((m) => m.id), [2]);
@@ -98,8 +99,8 @@ void main() {
       when(repository.search('batman', page: 2))
           .thenAnswer((_) async => pageResult([3], page: 2, hasMore: false));
 
-      final container = createContainer(repository);
-      final notifier = container.read(searchViewModelProvider.notifier);
+      final ProviderContainer container = createContainer(repository);
+      final SearchViewModel notifier = container.read(searchViewModelProvider.notifier);
       await notifier.search('batman');
       await notifier.loadMore();
 
@@ -108,7 +109,7 @@ void main() {
     });
 
     test('loadMore no hace nada sin búsqueda activa', () async {
-      final container = createContainer(repository);
+      final ProviderContainer container = createContainer(repository);
       await container.read(searchViewModelProvider.notifier).loadMore();
       verifyNever(repository.search(any, page: anyNamed('page')));
     });
@@ -118,8 +119,8 @@ void main() {
           .thenAnswer((_) async => pageResult([1], page: 1, hasMore: true));
       when(repository.search('batman', page: 2)).thenThrow(Exception('net'));
 
-      final container = createContainer(repository);
-      final notifier = container.read(searchViewModelProvider.notifier);
+      final ProviderContainer container = createContainer(repository);
+      final SearchViewModel notifier = container.read(searchViewModelProvider.notifier);
       await notifier.search('batman');
       await notifier.loadMore(); // falla → loadMoreError
       await notifier.loadMore(); // bloqueado por el guard

@@ -18,7 +18,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  final _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -27,25 +27,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  /// Paginación vertical de los resultados de búsqueda (el catálogo pagina en
-  /// horizontal, dentro de cada carrusel).
-  void _onScroll() {
-    if (ref.read(searchQueryProvider).isEmpty) return;
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 300) {
-      ref.read(searchViewModelProvider.notifier).loadMore();
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     // La búsqueda la orquesta el ViewModel: la barra llama directamente a sus
     // métodos (search decide término vacío = restaurar catálogo; clear limpia).
-    final searchViewModel = ref.watch(searchViewModelProvider.notifier);
+    final SearchViewModel searchViewModel = ref.watch(searchViewModelProvider.notifier);
     return Scaffold(
       body: CustomScrollView(
         controller: _scrollController,
@@ -60,6 +45,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
     );
   }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (ref.read(searchQueryProvider).isEmpty) return;
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 300) {
+      ref.read(searchViewModelProvider.notifier).loadMore();
+    }
+  }
 }
 
 /// Elige el contenido según el modo: catálogo (sin búsqueda) o resultados.
@@ -68,7 +66,7 @@ class _HomeContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final query = ref.watch(searchQueryProvider);
+    final String query = ref.watch(searchQueryProvider);
     if (query.isEmpty) {
       return CatalogView(onTapMovie: (id) => _openDetail(context, id));
     }

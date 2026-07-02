@@ -6,21 +6,21 @@ import '../../../../../fixtures/movie_fixtures.dart';
 
 void main() {
   group('CatalogState', () {
-    final popular = PagedMoviesState.fromPage(pageResult([1]));
-    final topRated = PagedMoviesState.fromPage(pageResult([9]));
+    final PagedMoviesState popular = PagedMoviesState.fromPage(pageResult([1]));
+    final PagedMoviesState topRated = PagedMoviesState.fromPage(pageResult([9]));
 
     test('copyWith reemplaza solo popular', () {
-      final state = CatalogState(popular: popular, topRated: topRated);
-      final next = PagedMoviesState.fromPage(pageResult([2, 3]));
-      final updated = state.copyWith(popular: next);
+      final CatalogState state = CatalogState(popular: popular, topRated: topRated);
+      final PagedMoviesState next = PagedMoviesState.fromPage(pageResult([2, 3]));
+      final CatalogState updated = state.copyWith(popular: next);
       expect(updated.popular, next);
       expect(updated.topRated, topRated);
     });
 
     test('copyWith reemplaza solo topRated', () {
-      final state = CatalogState(popular: popular, topRated: topRated);
-      final next = PagedMoviesState.fromPage(pageResult([8]));
-      final updated = state.copyWith(topRated: next);
+      final CatalogState state = CatalogState(popular: popular, topRated: topRated);
+      final PagedMoviesState next = PagedMoviesState.fromPage(pageResult([8]));
+      final CatalogState updated = state.copyWith(topRated: next);
       expect(updated.popular, popular);
       expect(updated.topRated, next);
     });

@@ -31,7 +31,7 @@ abstract final class AppTheme {
   );
 
   static ThemeData get dark {
-    final base = ThemeData.dark(useMaterial3: true);
+    final ThemeData base = ThemeData.dark(useMaterial3: true);
 
     return base.copyWith(
       colorScheme: _colorScheme,

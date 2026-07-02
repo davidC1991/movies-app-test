@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/api/remote/error_message.dart';
 import '../../../../core/state/ui_state.dart';
+import '../../domain/entities/movie.dart';
+import '../../domain/entities/page_result.dart';
 import '../providers/home_providers.dart';
 import 'states/paged_movies_state.dart';
 
@@ -30,7 +32,7 @@ class SearchViewModel extends Notifier<UIState<PagedMoviesState>> {
   /// "sin búsqueda" (restaura la vista por defecto). Actualiza además el modo
   /// (`searchQueryProvider`) para que la UI muestre los resultados.
   Future<void> search(String rawTerm) async {
-    final term = rawTerm.trim();
+    final String term = rawTerm.trim();
     if (term.isEmpty) {
       clear();
       return;
@@ -39,7 +41,7 @@ class SearchViewModel extends Notifier<UIState<PagedMoviesState>> {
     ref.read(searchQueryProvider.notifier).state = term;
     state = const UILoading();
     try {
-      final result = await ref.read(movieUseCasesProvider).search(term, page: 1);
+      final PageResult<Movie> result = await ref.read(movieUseCasesProvider).search(term, page: 1);
       // Búsquedas encadenadas: prevalece el último término escrito.
       if (_activeTerm != term) return;
       state = UISuccess(PagedMoviesState.fromPage(result));
@@ -68,26 +70,26 @@ class SearchViewModel extends Notifier<UIState<PagedMoviesState>> {
 
   Future<void> _loadMore({bool force = false}) async {
     if (_activeTerm.isEmpty) return;
-    final currentState = state;
+    final UIState<PagedMoviesState> currentState = state;
     if (currentState is! UISuccess<PagedMoviesState>) return;
-    final currentPage = currentState.data;
+    final PagedMoviesState currentPage = currentState.data;
     if (!currentPage.hasMore || currentPage.isLoadingMore) return;
     if (currentPage.loadMoreError && !force) return;
 
-    final term = _activeTerm;
+    final String term = _activeTerm;
     state = UISuccess(currentPage.startLoadingMore());
     try {
-      final result = await ref
+      final PageResult<Movie> result = await ref
           .read(movieUseCasesProvider)
           .search(term, page: currentPage.page + 1);
       // El término pudo cambiar durante el await: descarta la página obsoleta.
       if (_activeTerm != term) return;
-      final latestState = state;
+      final UIState<PagedMoviesState> latestState = state;
       if (latestState is! UISuccess<PagedMoviesState>) return;
       state = UISuccess(latestState.data.appendPage(result));
     } catch (_) {
       if (_activeTerm != term) return;
-      final latestState = state;
+      final UIState<PagedMoviesState> latestState = state;
       if (latestState is UISuccess<PagedMoviesState>) {
         state = UISuccess(latestState.data.failLoadingMore());
       }

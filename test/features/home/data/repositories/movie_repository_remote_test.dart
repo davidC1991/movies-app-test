@@ -5,6 +5,9 @@ import 'package:movies/features/home/data/models/movie_detail_model.dart';
 import 'package:movies/features/home/data/models/movie_model.dart';
 import 'package:movies/features/home/data/models/movie_response_model.dart';
 import 'package:movies/features/home/data/repositories/movie_repository_remote.dart';
+import 'package:movies/features/home/domain/entities/movie.dart';
+import 'package:movies/features/home/domain/entities/movie_detail.dart';
+import 'package:movies/features/home/domain/entities/page_result.dart';
 import 'package:movies/features/home/domain/enums/movie_genre.dart';
 
 import '../../../../helpers/mocks.mocks.dart';
@@ -39,7 +42,7 @@ void main() {
       when(dataSource.getPopular(page: 1))
           .thenAnswer((_) async => SuccessApiResponse(_response(page: 1, totalPages: 3)));
 
-      final result = await repository.getPopular(page: 1);
+      final PageResult<Movie> result = await repository.getPopular(page: 1);
 
       expect(result.items.map((m) => m.id), [1, 2]);
       expect(result.page, 1);
@@ -50,7 +53,7 @@ void main() {
       when(dataSource.getPopular(page: 3))
           .thenAnswer((_) async => SuccessApiResponse(_response(page: 3, totalPages: 3)));
 
-      final result = await repository.getPopular(page: 3);
+      final PageResult<Movie> result = await repository.getPopular(page: 3);
       expect(result.hasMore, isFalse);
     });
 
@@ -58,7 +61,7 @@ void main() {
       when(dataSource.getPopular(page: 1))
           .thenAnswer((_) async => EmptyApiResponse<MovieResponseModel>());
 
-      final result = await repository.getPopular(page: 1);
+      final PageResult<Movie> result = await repository.getPopular(page: 1);
       expect(result.items, isEmpty);
       expect(result.hasMore, isFalse);
     });
@@ -77,14 +80,14 @@ void main() {
 
   group('getDetail', () {
     test('success → MovieDetail (el modelo es-un MovieDetail)', () async {
-      const detail = MovieDetailModel(
+      const MovieDetailModel detail = MovieDetailModel(
         id: 42,
         title: 'Inception',
         genres: [MovieGenre.scienceFiction],
       );
       when(dataSource.getDetail(42)).thenAnswer((_) async => SuccessApiResponse(detail));
 
-      final result = await repository.getDetail(42);
+      final MovieDetail result = await repository.getDetail(42);
       expect(result.id, 42);
       expect(result.title, 'Inception');
     });

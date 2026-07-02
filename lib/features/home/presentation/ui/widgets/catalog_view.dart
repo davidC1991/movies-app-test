@@ -6,6 +6,7 @@ import '../../../../../core/state/ui_state.dart';
 import '../../../domain/entities/movie.dart';
 import '../../viewmodels/catalog_view_model.dart';
 import '../../utils/media_card_mapper.dart';
+import '../../viewmodels/states/catalog_state.dart';
 import '../../viewmodels/states/paged_movies_state.dart';
 
 /// Contenido del catálogo (sliver): filas "Populares" y "Mejor valoradas"
@@ -17,8 +18,8 @@ class CatalogView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(catalogViewModelProvider);
-    final notifier = ref.read(catalogViewModelProvider.notifier);
+    final UIState<CatalogState> state = ref.watch(catalogViewModelProvider);
+    final CatalogViewModel notifier = ref.read(catalogViewModelProvider.notifier);
 
     return switch (state) {
       UILoading() => const SliverFillRemaining(

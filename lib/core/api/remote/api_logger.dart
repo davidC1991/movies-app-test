@@ -49,7 +49,7 @@ class ConsoleApiLogger implements ApiLogger {
   @override
   void logError(String message, {Object? exception, StackTrace? stackTrace, String? additionalInfo}) {
     if (kDebugMode) {
-      final buffer = StringBuffer()
+      final StringBuffer buffer = StringBuffer()
         ..writeln('===== API ERROR =====')
         ..writeln('message     : $message');
       if (additionalInfo != null && additionalInfo.isNotEmpty) {
@@ -69,7 +69,7 @@ class ConsoleApiLogger implements ApiLogger {
   @override
   void logInfo(String message) {
     if (kDebugMode) {
-      final buffer = StringBuffer()
+      final StringBuffer buffer = StringBuffer()
         ..writeln('----- API INFO ------')
         ..writeln('message     : $message')
         ..writeln('---------------------');

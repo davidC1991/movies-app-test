@@ -23,7 +23,7 @@ class HomeRoutes {
       '${RoutePaths.movieDetail}/:id',
       handler: Handler(
         handlerFunc: (context, params) {
-          final id = int.tryParse(params['id']?.first ?? '');
+          final int? id = int.tryParse(params['id']?.first ?? '');
           // Ruta malformada (`/movie/abc`): no golpear la API con un id inválido.
           if (id == null) {
             return const Scaffold(

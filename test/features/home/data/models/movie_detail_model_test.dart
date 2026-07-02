@@ -8,7 +8,7 @@ import '../../../../fixtures/json_fixtures.dart';
 void main() {
   group('MovieDetailModel.fromJson', () {
     test('es-un MovieDetail y mapea campos base + backdrop_path', () {
-      final model = MovieDetailModel.fromJson(movieDetailJson());
+      final MovieDetailModel model = MovieDetailModel.fromJson(movieDetailJson());
 
       expect(model, isA<MovieDetail>());
       expect(model.id, 42);
@@ -20,22 +20,22 @@ void main() {
     });
 
     test('GenresConverter mapea [{id,name}] → List<MovieGenre> por id', () {
-      final model = MovieDetailModel.fromJson(movieDetailJson());
+      final MovieDetailModel model = MovieDetailModel.fromJson(movieDetailJson());
       expect(model.genres, [MovieGenre.scienceFiction, MovieGenre.thriller]);
     });
 
     test('géneros ausentes → lista vacía', () {
-      final json = movieDetailJson()..remove('genres');
-      final model = MovieDetailModel.fromJson(json);
+      final Map<String, dynamic> json = movieDetailJson()..remove('genres');
+      final MovieDetailModel model = MovieDetailModel.fromJson(json);
       expect(model.genres, isEmpty);
     });
 
     test('género con id desconocido → unknown', () {
-      final json = movieDetailJson()
+      final Map<String, dynamic> json = movieDetailJson()
         ..['genres'] = [
           {'id': -1, 'name': 'Raro'},
         ];
-      final model = MovieDetailModel.fromJson(json);
+      final MovieDetailModel model = MovieDetailModel.fromJson(json);
       expect(model.genres, [MovieGenre.unknown]);
     });
   });

@@ -10,7 +10,7 @@ import 'mocks.mocks.dart';
 /// ejercitar el caso de uso real sobre un repositorio simulado. Registra el
 /// `dispose` automáticamente (aislamiento por prueba).
 ProviderContainer createContainer(MockMovieRepository repository) {
-  final container = ProviderContainer(
+  final ProviderContainer container = ProviderContainer(
     overrides: [
       movieUseCasesProvider.overrideWithValue(MovieUseCases(repository)),
     ],
@@ -26,8 +26,8 @@ List<T> recordStates<T>(
   ProviderContainer container,
   ProviderListenable<T> provider,
 ) {
-  final states = <T>[];
-  final sub = container.listen<T>(
+  final List<T> states = <T>[];
+  final ProviderSubscription<T> sub = container.listen<T>(
     provider,
     (_, next) => states.add(next),
     fireImmediately: true,

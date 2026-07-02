@@ -96,7 +96,7 @@ mixin ApiResponseHandlerMixin {
   /// ```
   Future<ApiResponse<T>> executeApiCallLazy<T>(Future<T> Function() apiRequest) async {
     try {
-      final result = await apiRequest();
+      final T result = await apiRequest();
       _logInfo('API call successful: ${T.toString()}');
       return SuccessApiResponse(result);
     } on DioException catch (dioException) {
@@ -113,8 +113,8 @@ mixin ApiResponseHandlerMixin {
   ApiResponse<T> _handleDioException<T>(DioException dioException) {
     _logError('DioException occurred', exception: dioException, stackTrace: dioException.stackTrace);
 
-    final statusCode = dioException.response?.statusCode;
-    final requestPath = dioException.requestOptions.path;
+    final int? statusCode = dioException.response?.statusCode;
+    final String requestPath = dioException.requestOptions.path;
 
     // Handle successful empty responses (201 Created, 204 No Content)
     if (statusCode == _STATUS_CREATED || statusCode == _STATUS_NO_CONTENT) {
@@ -132,7 +132,7 @@ mixin ApiResponseHandlerMixin {
     required int? statusCode,
     required String requestPath,
   }) {
-    final exceptionType = dioException.type;
+    final DioExceptionType exceptionType = dioException.type;
 
     switch (exceptionType) {
       case DioExceptionType.connectionTimeout:
@@ -181,7 +181,7 @@ mixin ApiResponseHandlerMixin {
     required int? statusCode,
     required String requestPath,
   }) {
-    final timeoutType = exceptionType.toString().split('.').last;
+    final String timeoutType = exceptionType.toString().split('.').last;
     _logError('Timeout error ($timeoutType) for $requestPath');
 
     return ErrorApiResponse<T>(

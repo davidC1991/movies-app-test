@@ -16,7 +16,7 @@ class MovieDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(movieDetailViewModelProvider(movieId));
+    final UIState<MovieDetail> state = ref.watch(movieDetailViewModelProvider(movieId));
 
     return Scaffold(
       body: Stack(
@@ -102,18 +102,18 @@ class _DetailContent extends StatelessWidget {
 
 /// Metadatos cortos ya formateados para la cabecera (año, duración).
 List<String> _metadata(MovieDetail detail) {
-  final data = <String>[];
-  final date = detail.releaseDate;
+  final List<String> data = <String>[];
+  final String? date = detail.releaseDate;
   if (date != null && date.length >= 4) data.add(date.substring(0, 4));
-  final runtime = detail.runtime;
+  final int? runtime = detail.runtime;
   if (runtime != null && runtime > 0) data.add(_formatRuntime(runtime));
   return data;
 }
 
 /// Formatea una duración en minutos como "2h 15m" (o "45m").
 String _formatRuntime(int minutes) {
-  final hours = minutes ~/ 60;
-  final mins = minutes % 60;
+  final int hours = minutes ~/ 60;
+  final int mins = minutes % 60;
   if (hours == 0) return '${mins}m';
   return '${hours}h ${mins}m';
 }

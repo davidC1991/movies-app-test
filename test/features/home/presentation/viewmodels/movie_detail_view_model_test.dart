@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:movies/core/state/ui_state.dart';
@@ -17,8 +18,8 @@ void main() {
     test('UILoading → UISuccess(MovieDetail)', () async {
       when(repository.getDetail(42)).thenAnswer((_) async => movieDetailFixture);
 
-      final container = createContainer(repository);
-      final states = recordStates(container, movieDetailViewModelProvider(42));
+      final ProviderContainer container = createContainer(repository);
+      final List<UIState<MovieDetail>> states = recordStates(container, movieDetailViewModelProvider(42));
 
       await container.read(movieDetailViewModelProvider(42).notifier).retry();
 
@@ -31,8 +32,8 @@ void main() {
     test('UILoading → UIFail cuando falla la carga', () async {
       when(repository.getDetail(7)).thenThrow(Exception('boom'));
 
-      final container = createContainer(repository);
-      final states = recordStates(container, movieDetailViewModelProvider(7));
+      final ProviderContainer container = createContainer(repository);
+      final List<UIState<MovieDetail>> states = recordStates(container, movieDetailViewModelProvider(7));
 
       await container.read(movieDetailViewModelProvider(7).notifier).retry();
 
@@ -45,8 +46,8 @@ void main() {
       when(repository.getDetail(42))
           .thenThrow(Exception('primero falla'));
 
-      final container = createContainer(repository);
-      final notifier = container.read(movieDetailViewModelProvider(42).notifier);
+      final ProviderContainer container = createContainer(repository);
+      final MovieDetailViewModel notifier = container.read(movieDetailViewModelProvider(42).notifier);
       await notifier.retry();
       expect(container.read(movieDetailViewModelProvider(42)), isA<UIFail<MovieDetail>>());
 

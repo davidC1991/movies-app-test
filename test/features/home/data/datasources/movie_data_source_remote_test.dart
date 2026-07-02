@@ -18,7 +18,7 @@ void main() {
     dataSource = MovieDataSourceRemote(service);
   });
 
-  const response = MovieResponseModel(
+  const MovieResponseModel response = MovieResponseModel(
     page: 1,
     totalPages: 2,
     results: [MovieModel(id: 1, title: 'A')],
@@ -27,7 +27,7 @@ void main() {
   test('getPopular éxito → SuccessApiResponse con el body', () async {
     when(service.getPopularMovies(page: 1)).thenAnswer((_) async => response);
 
-    final result = await dataSource.getPopular(page: 1);
+    final ApiResponse<MovieResponseModel> result = await dataSource.getPopular(page: 1);
 
     expect(result, isA<SuccessApiResponse<MovieResponseModel>>());
     expect((result as SuccessApiResponse<MovieResponseModel>).body.results.first.id, 1);
@@ -35,20 +35,20 @@ void main() {
 
   test('getTopRated éxito → SuccessApiResponse', () async {
     when(service.getTopRatedMovies(page: 1)).thenAnswer((_) async => response);
-    final result = await dataSource.getTopRated(page: 1);
+    final ApiResponse<MovieResponseModel> result = await dataSource.getTopRated(page: 1);
     expect(result, isA<SuccessApiResponse<MovieResponseModel>>());
   });
 
   test('search éxito → SuccessApiResponse', () async {
     when(service.searchMovies(query: 'q', page: 1)).thenAnswer((_) async => response);
-    final result = await dataSource.search('q', page: 1);
+    final ApiResponse<MovieResponseModel> result = await dataSource.search('q', page: 1);
     expect(result, isA<SuccessApiResponse<MovieResponseModel>>());
   });
 
   test('getDetail éxito → SuccessApiResponse', () async {
-    const detail = MovieDetailModel(id: 1, title: 'A');
+    const MovieDetailModel detail = MovieDetailModel(id: 1, title: 'A');
     when(service.getMovieDetail(1)).thenAnswer((_) async => detail);
-    final result = await dataSource.getDetail(1);
+    final ApiResponse<MovieDetailModel> result = await dataSource.getDetail(1);
     expect(result, isA<SuccessApiResponse<MovieDetailModel>>());
   });
 
@@ -62,7 +62,7 @@ void main() {
       ),
     );
 
-    final result = await dataSource.search('x', page: 1);
+    final ApiResponse<MovieResponseModel> result = await dataSource.search('x', page: 1);
 
     expect(result, isA<ErrorApiResponse<MovieResponseModel>>());
   });

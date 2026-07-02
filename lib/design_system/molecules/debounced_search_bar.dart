@@ -65,7 +65,7 @@ class _DebouncedSearchBarState extends State<DebouncedSearchBar> {
 
   /// Mantiene sincronizada la visibilidad del botón de limpiar.
   void _syncClearButton() {
-    final hasText = _controller.text.isNotEmpty;
+    final bool hasText = _controller.text.isNotEmpty;
     if (hasText != _hasText) setState(() => _hasText = hasText);
   }
 

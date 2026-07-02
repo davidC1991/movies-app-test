@@ -101,7 +101,7 @@ class MediaCarousel extends StatelessWidget {
                     onRetry: loadMoreFailed ? onRetryLoadMore : null,
                   );
                 }
-                final item = items[index];
+                final MediaCardData item = items[index];
                 return MediaCard(
                   key: ValueKey('${title}_$index'),
                   posterUrl: item.posterUrl,

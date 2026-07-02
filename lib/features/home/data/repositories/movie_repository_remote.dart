@@ -4,6 +4,7 @@ import '../../domain/entities/movie_detail.dart';
 import '../../domain/entities/page_result.dart';
 import '../../domain/repositories/movie_repository.dart';
 import '../datasources/movie_data_source.dart';
+import '../models/movie_detail_model.dart';
 import '../models/movie_response_model.dart';
 
 /// Implementación del repositorio (data). Se le inyecta el `MovieDataSource`
@@ -28,7 +29,7 @@ class MovieRepositoryRemote implements MovieRepository {
 
   @override
   Future<MovieDetail> getDetail(int id) async {
-    final response = await _dataSource.getDetail(id);
+    final ApiResponse<MovieDetailModel> response = await _dataSource.getDetail(id);
     return response.when(
       // Un MovieDetailModel es-un MovieDetail (LSP): se devuelve directo.
       onSuccess: (success) => success.body,
@@ -44,7 +45,7 @@ class MovieRepositoryRemote implements MovieRepository {
   Future<PageResult<Movie>> _toPageResult(
     Future<ApiResponse<MovieResponseModel>> future,
   ) async {
-    final response = await future;
+    final ApiResponse<MovieResponseModel> response = await future;
     return response.when(
       onSuccess: (success) => PageResult<Movie>(
         items: success.body.results,

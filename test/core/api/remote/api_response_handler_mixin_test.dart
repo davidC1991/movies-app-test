@@ -19,7 +19,7 @@ class _Handler with ApiResponseHandlerMixin {
 }
 
 DioException _dio(DioExceptionType type, {int? status}) {
-  final options = RequestOptions(path: '/x');
+  final RequestOptions options = RequestOptions(path: '/x');
   return DioException(
     requestOptions: options,
     type: type,
@@ -28,23 +28,23 @@ DioException _dio(DioExceptionType type, {int? status}) {
 }
 
 void main() {
-  final handler = _Handler();
+  final _Handler handler = _Handler();
 
   test('éxito → SuccessApiResponse con el valor', () async {
-    final r = await handler.executeApiCall<int>(Future.value(5));
+    final ApiResponse<int> r = await handler.executeApiCall<int>(Future.value(5));
     expect(r, isA<SuccessApiResponse<int>>());
     expect((r as SuccessApiResponse<int>).body, 5);
   });
 
   test('204 No Content → EmptyApiResponse', () async {
-    final r = await handler.executeApiCall<int>(
+    final ApiResponse<int> r = await handler.executeApiCall<int>(
       Future.error(_dio(DioExceptionType.badResponse, status: 204)),
     );
     expect(r, isA<EmptyApiResponse<int>>());
   });
 
   test('timeout → ErrorApiResponse 408', () async {
-    final r = await handler.executeApiCall<int>(
+    final ApiResponse<int> r = await handler.executeApiCall<int>(
       Future.error(_dio(DioExceptionType.receiveTimeout)),
     );
     expect(r, isA<ErrorApiResponse<int>>());
@@ -52,35 +52,35 @@ void main() {
   });
 
   test('connectionError → ErrorApiResponse 999', () async {
-    final r = await handler.executeApiCall<int>(
+    final ApiResponse<int> r = await handler.executeApiCall<int>(
       Future.error(_dio(DioExceptionType.connectionError)),
     );
     expect((r as ErrorApiResponse<int>).httpStatusCode, 999);
   });
 
   test('cancel → ErrorApiResponse 499', () async {
-    final r = await handler.executeApiCall<int>(
+    final ApiResponse<int> r = await handler.executeApiCall<int>(
       Future.error(_dio(DioExceptionType.cancel)),
     );
     expect((r as ErrorApiResponse<int>).httpStatusCode, 499);
   });
 
   test('badCertificate → ErrorApiResponse 495', () async {
-    final r = await handler.executeApiCall<int>(
+    final ApiResponse<int> r = await handler.executeApiCall<int>(
       Future.error(_dio(DioExceptionType.badCertificate)),
     );
     expect((r as ErrorApiResponse<int>).httpStatusCode, 495);
   });
 
   test('unknown → ErrorApiResponse 601', () async {
-    final r = await handler.executeApiCall<int>(
+    final ApiResponse<int> r = await handler.executeApiCall<int>(
       Future.error(_dio(DioExceptionType.unknown)),
     );
     expect((r as ErrorApiResponse<int>).httpStatusCode, 601);
   });
 
   test('excepción genérica (no Dio) → ErrorApiResponse 601', () async {
-    final r = await handler.executeApiCall<int>(Future.error(StateError('boom')));
+    final ApiResponse<int> r = await handler.executeApiCall<int>(Future.error(StateError('boom')));
     expect(r, isA<ErrorApiResponse<int>>());
     expect((r as ErrorApiResponse<int>).httpStatusCode, 601);
   });

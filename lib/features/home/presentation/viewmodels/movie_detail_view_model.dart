@@ -22,7 +22,7 @@ class MovieDetailViewModel extends FamilyNotifier<UIState<MovieDetail>, int> {
   Future<void> _load(int id) async {
     state = const UILoading();
     try {
-      final detail = await ref.read(movieUseCasesProvider).getDetail(id);
+      final MovieDetail detail = await ref.read(movieUseCasesProvider).getDetail(id);
       state = UISuccess(detail);
     } catch (e) {
       state = UIFail(messageFromError(e));

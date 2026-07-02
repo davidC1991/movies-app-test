@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:movies/design_system/design_system.dart';
 
 import '../../../../../core/state/ui_state.dart';
+import '../../../domain/entities/movie.dart';
 import '../../utils/media_card_mapper.dart';
 import '../../viewmodels/states/paged_movies_state.dart';
 import '../../viewmodels/search_view_model.dart';
@@ -16,8 +17,8 @@ class SearchResultsView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(searchViewModelProvider);
-    final notifier = ref.read(searchViewModelProvider.notifier);
+    final UIState<PagedMoviesState> state = ref.watch(searchViewModelProvider);
+    final SearchViewModel notifier = ref.read(searchViewModelProvider.notifier);
 
     return switch (state) {
       UILoading() => const SliverFillRemaining(
@@ -76,10 +77,10 @@ class _ResultsList extends StatelessWidget {
             ),
             delegate: SliverChildBuilderDelegate(
               (context, index) {
-                final movie = paged.items[index];
+                final Movie movie = paged.items[index];
                 // Reutiliza el mapeo Movie → tarjeta (posterPath → URL) del
                 // mismo helper que usa el catálogo, para no duplicarlo.
-                final card = movie.toCardData(onTap: () => onTapMovie(movie.id));
+                final MediaCardData card = movie.toCardData(onTap: () => onTapMovie(movie.id));
                 return MediaCard(
                   posterUrl: card.posterUrl,
                   title: card.title,

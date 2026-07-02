@@ -2,6 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/api/remote/error_message.dart';
 import '../../../../core/state/ui_state.dart';
+import '../../domain/entities/movie.dart';
+import '../../domain/entities/page_result.dart';
+import '../../domain/usecases/movie_use_cases.dart';
 import '../providers/home_providers.dart';
 import 'states/catalog_state.dart';
 import 'states/paged_movies_state.dart';
@@ -23,8 +26,8 @@ class CatalogViewModel extends Notifier<UIState<CatalogState>> {
   Future<void> _load() async {
     state = const UILoading();
     try {
-      final useCases = ref.read(movieUseCasesProvider);
-      final results = await Future.wait([
+      final MovieUseCases useCases = ref.read(movieUseCasesProvider);
+      final List<PageResult<Movie>> results = await Future.wait([
         useCases.getPopular(page: 1),
         useCases.getTopRated(page: 1),
       ]);
@@ -52,9 +55,9 @@ class CatalogViewModel extends Notifier<UIState<CatalogState>> {
   Future<void> retryLoadMoreTopRated() => _loadMore(isPopular: false, force: true);
 
   Future<void> _loadMore({required bool isPopular, bool force = false}) async {
-    final current = state;
+    final UIState<CatalogState> current = state;
     if (current is! UISuccess<CatalogState>) return;
-    final paged = isPopular ? current.data.popular : current.data.topRated;
+    final PagedMoviesState paged = isPopular ? current.data.popular : current.data.topRated;
     if (!paged.hasMore || paged.isLoadingMore) return;
     // Sin auto-reintento tras un fallo: se espera acción del usuario para no
     // martillar el endpoint en cada frame de scroll.
@@ -62,18 +65,18 @@ class CatalogViewModel extends Notifier<UIState<CatalogState>> {
 
     state = UISuccess(_patch(current.data, isPopular, paged.startLoadingMore()));
     try {
-      final useCases = ref.read(movieUseCasesProvider);
-      final result = isPopular
+      final MovieUseCases useCases = ref.read(movieUseCasesProvider);
+      final PageResult<Movie> result = isPopular
           ? await useCases.getPopular(page: paged.page + 1)
           : await useCases.getTopRated(page: paged.page + 1);
-      final now = state;
+      final UIState<CatalogState> now = state;
       if (now is! UISuccess<CatalogState>) return;
-      final base = isPopular ? now.data.popular : now.data.topRated;
+      final PagedMoviesState base = isPopular ? now.data.popular : now.data.topRated;
       state = UISuccess(_patch(now.data, isPopular, base.appendPage(result)));
     } catch (_) {
-      final now = state;
+      final UIState<CatalogState> now = state;
       if (now is! UISuccess<CatalogState>) return;
-      final base = isPopular ? now.data.popular : now.data.topRated;
+      final PagedMoviesState base = isPopular ? now.data.popular : now.data.topRated;
       state = UISuccess(_patch(now.data, isPopular, base.failLoadingMore()));
     }
   }

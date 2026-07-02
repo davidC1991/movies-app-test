@@ -8,7 +8,7 @@ import 'package:movies/features/home/domain/enums/movie_genre.dart';
 Movie movie(int id, {String? title, double rating = 7.5}) =>
     Movie(id: id, title: title ?? 'Película $id', posterPath: '/p$id.jpg', voteAverage: rating);
 
-List<Movie> movies(List<int> ids) => [for (final id in ids) movie(id)];
+List<Movie> movies(List<int> ids) => [for (final int id in ids) movie(id)];
 
 /// Página de resultados con [ids]; [hasMore] indica si quedan más páginas.
 PageResult<Movie> pageResult(List<int> ids, {int page = 1, bool hasMore = false}) =>

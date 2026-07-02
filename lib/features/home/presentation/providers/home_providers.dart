@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/api/remote/dio_provider.dart';
@@ -9,9 +10,9 @@ import '../../domain/usecases/movie_use_cases.dart';
 /// Único provider de la feature: expone `MovieUseCases` y ensambla la cadena
 /// manualmente (dio → MovieService → data source → repositorio → casos de uso).
 final movieUseCasesProvider = Provider<MovieUseCases>((ref) {
-  final dio = ref.read(dioProvider);
-  final service = MovieService(dio);
-  final dataSource = MovieDataSourceRemote(service);
-  final repository = MovieRepositoryRemote(dataSource);
+  final Dio dio = ref.read(dioProvider);
+  final MovieService service = MovieService(dio);
+  final MovieDataSourceRemote dataSource = MovieDataSourceRemote(service);
+  final MovieRepositoryRemote repository = MovieRepositoryRemote(dataSource);
   return MovieUseCases(repository);
 });

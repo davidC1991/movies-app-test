@@ -1,5 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:movies/features/home/domain/entities/movie.dart';
+import 'package:movies/features/home/domain/entities/movie_detail.dart';
+import 'package:movies/features/home/domain/entities/page_result.dart';
 import 'package:movies/features/home/domain/usecases/movie_use_cases.dart';
 
 import '../../../../fixtures/movie_fixtures.dart';
@@ -16,30 +19,30 @@ void main() {
 
   group('MovieUseCases — delegación en el repositorio', () {
     test('getPopular delega con la misma página y devuelve el resultado', () async {
-      final page = pageResult([1, 2]);
+      final PageResult<Movie> page = pageResult([1, 2]);
       when(repository.getPopular(page: 3)).thenAnswer((_) async => page);
 
-      final result = await useCases.getPopular(page: 3);
+      final PageResult<Movie> result = await useCases.getPopular(page: 3);
 
       expect(result, page);
       verify(repository.getPopular(page: 3)).called(1);
     });
 
     test('getTopRated delega en el repositorio', () async {
-      final page = pageResult([9]);
+      final PageResult<Movie> page = pageResult([9]);
       when(repository.getTopRated(page: 1)).thenAnswer((_) async => page);
 
-      final result = await useCases.getTopRated();
+      final PageResult<Movie> result = await useCases.getTopRated();
 
       expect(result, page);
       verify(repository.getTopRated(page: 1)).called(1);
     });
 
     test('search delega término y página', () async {
-      final page = pageResult([5]);
+      final PageResult<Movie> page = pageResult([5]);
       when(repository.search('batman', page: 2)).thenAnswer((_) async => page);
 
-      final result = await useCases.search('batman', page: 2);
+      final PageResult<Movie> result = await useCases.search('batman', page: 2);
 
       expect(result, page);
       verify(repository.search('batman', page: 2)).called(1);
@@ -48,7 +51,7 @@ void main() {
     test('getDetail delega con el id', () async {
       when(repository.getDetail(42)).thenAnswer((_) async => movieDetailFixture);
 
-      final result = await useCases.getDetail(42);
+      final MovieDetail result = await useCases.getDetail(42);
 
       expect(result, movieDetailFixture);
       verify(repository.getDetail(42)).called(1);

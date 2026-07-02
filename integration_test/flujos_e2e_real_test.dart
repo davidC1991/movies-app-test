@@ -31,7 +31,7 @@ void main() {
       Finder finder, {
       Duration timeout = const Duration(seconds: 20),
     }) async {
-      final end = DateTime.now().add(timeout);
+      final DateTime end = DateTime.now().add(timeout);
       while (DateTime.now().isBefore(end)) {
         await tester.pump(const Duration(milliseconds: 300));
         if (finder.evaluate().isNotEmpty) return true;

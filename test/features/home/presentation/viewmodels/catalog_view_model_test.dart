@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:movies/core/state/ui_state.dart';
@@ -20,8 +21,8 @@ void main() {
       when(repository.getTopRated(page: anyNamed('page')))
           .thenAnswer((_) async => pageResult([9, 8]));
 
-      final container = createContainer(repository);
-      final states = recordStates(container, catalogViewModelProvider);
+      final ProviderContainer container = createContainer(repository);
+      final List<UIState<CatalogState>> states = recordStates(container, catalogViewModelProvider);
 
       // El primer estado observado (fireImmediately) es la carga inicial.
       expect(states.first, isA<UILoading<CatalogState>>());
@@ -30,7 +31,7 @@ void main() {
 
       expect(states.whereType<UIFail<CatalogState>>(), isEmpty,
           reason: 'el camino feliz no debe emitir error');
-      final success = states.whereType<UISuccess<CatalogState>>().last;
+      final UISuccess<CatalogState> success = states.whereType<UISuccess<CatalogState>>().last;
       expect(success.data.popular.items.map((m) => m.id), [1, 2]);
       expect(success.data.topRated.items.map((m) => m.id), [9, 8]);
     });
@@ -40,8 +41,8 @@ void main() {
       when(repository.getTopRated(page: anyNamed('page')))
           .thenAnswer((_) async => pageResult([9]));
 
-      final container = createContainer(repository);
-      final states = recordStates(container, catalogViewModelProvider);
+      final ProviderContainer container = createContainer(repository);
+      final List<UIState<CatalogState>> states = recordStates(container, catalogViewModelProvider);
 
       await container.read(catalogViewModelProvider.notifier).retry();
 
@@ -59,12 +60,12 @@ void main() {
       when(repository.getPopular(page: 2))
           .thenAnswer((_) async => pageResult([3, 4], page: 2, hasMore: false));
 
-      final container = createContainer(repository);
-      final notifier = container.read(catalogViewModelProvider.notifier);
+      final ProviderContainer container = createContainer(repository);
+      final CatalogViewModel notifier = container.read(catalogViewModelProvider.notifier);
       await notifier.retry();
       await notifier.loadMorePopular();
 
-      final data = (container.read(catalogViewModelProvider) as UISuccess<CatalogState>).data;
+      final CatalogState data = (container.read(catalogViewModelProvider) as UISuccess<CatalogState>).data;
       expect(data.popular.items.map((m) => m.id), [1, 2, 3, 4]);
       expect(data.popular.hasMore, isFalse);
     });
@@ -75,8 +76,8 @@ void main() {
       when(repository.getTopRated(page: 1))
           .thenAnswer((_) async => pageResult([9], page: 1, hasMore: false));
 
-      final container = createContainer(repository);
-      final notifier = container.read(catalogViewModelProvider.notifier);
+      final ProviderContainer container = createContainer(repository);
+      final CatalogViewModel notifier = container.read(catalogViewModelProvider.notifier);
       await notifier.retry();
       await notifier.loadMorePopular();
 
@@ -90,15 +91,15 @@ void main() {
           .thenAnswer((_) async => pageResult([9], page: 1, hasMore: false));
       when(repository.getPopular(page: 2)).thenThrow(Exception('net'));
 
-      final container = createContainer(repository);
-      final notifier = container.read(catalogViewModelProvider.notifier);
+      final ProviderContainer container = createContainer(repository);
+      final CatalogViewModel notifier = container.read(catalogViewModelProvider.notifier);
       await notifier.retry();
       await notifier.loadMorePopular(); // falla → loadMoreError = true
       await notifier.loadMorePopular(); // bloqueado por el guard
 
       // page:2 solo se intentó una vez pese a dos llamadas.
       verify(repository.getPopular(page: 2)).called(1);
-      final data = (container.read(catalogViewModelProvider) as UISuccess<CatalogState>).data;
+      final CatalogState data = (container.read(catalogViewModelProvider) as UISuccess<CatalogState>).data;
       expect(data.popular.loadMoreError, isTrue);
     });
   });

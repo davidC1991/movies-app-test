@@ -24,7 +24,7 @@ class AppChip extends StatelessWidget {
     final Color bg = selected ? AppColors.accent : AppColors.surfaceElevated;
     final Color fg = selected ? AppColors.onAccent : AppColors.textSecondary;
 
-    final chip = AnimatedContainer(
+    final AnimatedContainer chip = AnimatedContainer(
       duration: const Duration(milliseconds: 150),
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.md,
