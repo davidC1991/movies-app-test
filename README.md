@@ -4,6 +4,12 @@ App móvil en Flutter: catálogo de películas reales de TMDB (**Populares** y *
 valoradas**), **buscador** con debounce y pantalla de **Detalle**, sobre un **design
 system** reutilizable (estética tipo Netflix, dark).
 
+## Demo
+
+<p align="center">
+  <img src="docs/demo.gif" alt="Demo de la app: catálogo, búsqueda y detalle" width="280" />
+</p>
+
 ## Tech stack
 
 | Herramienta                        | Para qué se usa                                              |
@@ -67,38 +73,12 @@ se documenta la decisión en un **ADR**; luego se testea y se pasa al siguiente 
 
 Las especificaciones de cada feature viven en `specs/`.
 
-## Configuración (TMDB)
-
-1. Crea una cuenta en [themoviedb.org](https://www.themoviedb.org) → **Settings → API**.
-2. Copia tu **API Read Access Token** (v4, empieza con `eyJ...`).
-3. Crea un archivo **`.env`** en la raíz (plantilla en `.env.example`):
-   ```env
-   TMDB_TOKEN=eyJ...
-   ```
-   El `.env` está en `.gitignore` (no se versiona).
-
-## Ejecutar
+## Para inciar el app ejecutar
 
 ```bash
 flutter pub get
 dart run build_runner build --delete-conflicting-outputs   # genera código (ver abajo)
 flutter run
-```
-
-## Regenerar código
-
-Genera `*.g.dart` (json_serializable / retrofit), `*.freezed.dart` (freezed) y
-`test/helpers/mocks.mocks.dart` (mockito):
-
-```bash
-# Una vez
-dart run build_runner build --delete-conflicting-outputs
-
-# En modo watch (regenera al guardar)
-dart run build_runner watch --delete-conflicting-outputs
-
-# Limpiar salidas generadas
-dart run build_runner clean
 ```
 
 ## Pantallas
@@ -124,12 +104,6 @@ flutter test integration_test/flujos_e2e_real_test.dart -d <device>           # 
 flutter analyze
 dart format .
 ```
-
-> Si cambiaste algún contrato mockeado, regenera los mocks antes de correr los tests
-> (ver [Regenerar código](#regenerar-código)).
-
-Dobles con **mockito**; las transiciones de estado se aseveran con
-`container.listen(..., fireImmediately: true)`.
 
 **Cobertura actual: 92.1% de la lógica** (66/66 pruebas verdes) — se excluye código
 generado, UI y wiring de DI; la UI se valida por integración/E2E.
