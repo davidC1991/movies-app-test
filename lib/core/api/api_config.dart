@@ -10,6 +10,9 @@ class ApiConfig {
   static const String imageBaseUrl = 'https://image.tmdb.org/t/p';
   static const String posterSize = 'w342';
 
+  /// Tamaño para las imágenes panorámicas (backdrop) del detalle.
+  static const String backdropSize = 'w780';
+
   /// Read Access Token (v4) de TMDB, leído del archivo `.env`.
   static String get tmdbToken => dotenv.env['TMDB_TOKEN'] ?? '';
 
@@ -18,5 +21,12 @@ class ApiConfig {
   static String? posterUrl(String? path) {
     if (path == null || path.isEmpty) return null;
     return '$imageBaseUrl/$posterSize$path';
+  }
+
+  /// Construye la URL de un backdrop a partir de su `backdrop_path`.
+  /// Devuelve `null` si no hay ruta (para usar un fallback).
+  static String? backdropUrl(String? path) {
+    if (path == null || path.isEmpty) return null;
+    return '$imageBaseUrl/$backdropSize$path';
   }
 }

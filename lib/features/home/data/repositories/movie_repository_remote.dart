@@ -30,7 +30,8 @@ class MovieRepositoryRemote implements MovieRepository {
   Future<MovieDetail> getDetail(int id) async {
     final response = await _dataSource.getDetail(id);
     return response.when(
-      onSuccess: (success) => success.body.toEntity(),
+      // Un MovieDetailModel es-un MovieDetail (LSP): se devuelve directo.
+      onSuccess: (success) => success.body,
       onEmpty: (_) => throw ErrorApiResponse(
         httpErrorMessage: 'Sin datos de la película',
         httpStatusCode: 404,

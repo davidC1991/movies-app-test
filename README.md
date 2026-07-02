@@ -1,7 +1,9 @@
 # Movies / Series
 
-App móvil (Flutter) para el ejercicio técnico de Películas/Series. Este repositorio
-contiene, por ahora, la **base arquitectónica** (scaffold) verificada end-to-end.
+App móvil (Flutter) para el ejercicio técnico de Películas/Series: catálogo de
+películas reales de TMDB categorizado en **Populares** y **Mejor valoradas**,
+**buscador** con debounce y pantalla de **Detalle**, sobre un **design system**
+reutilizable (Atomic Design, estética tipo Netflix, dark-only).
 
 ## Stack
 
@@ -22,6 +24,11 @@ lib/
 ├── app.dart                  # MaterialApp con el FluroRouter global
 ├── navigation/               # Routing global (Fluro) — fuera de core (depende de Flutter)
 ├── core/                     # Lógica Dart pura (sin Flutter): Result<T>, UIState<T>, Failure
+├── design_system/            # Design System compartido (Atomic Design, tema Netflix)
+│   ├── theme/                # tokens: colores, tipografía, espaciados, radios, sombras
+│   ├── atoms/                # AppText, RatingBadge, AppChip, AppIconButton, Shimmer…
+│   ├── molecules/            # DebouncedSearchBar, MediaCard, EmptyState, ErrorState…
+│   └── organisms/            # MediaCarousel, CatalogSearchAppBar, DetailHeader
 └── features/<feature>/
     ├── data/                 # datasources · models (+ toEntity) · repositories
     ├── domain/               # entities · repositories (contratos) · usecases
@@ -62,9 +69,15 @@ dart run build_runner build --delete-conflicting-outputs   # genera *.freezed.da
 flutter run
 ```
 
-La pantalla principal (**Populares**) carga automáticamente las películas reales de
-TMDB (póster + título + rating) con **scroll infinito**; ante un fallo muestra un
-mensaje con botón **Reintentar**.
+## Pantallas
+
+- **Catálogo (Home)**: filas horizontales estilo Netflix de **Populares** y **Mejor
+  valoradas** (póster + rating) con **scroll infinito** por categoría. Arriba, una
+  **barra de búsqueda** con **debounce de 400 ms**: al escribir filtra las películas
+  y actualiza la vista; al limpiar/volver restaura el catálogo por defecto.
+- **Detalle**: backdrop + póster + título + rating + géneros + sinopsis.
+- Toda pantalla comunica sus estados de **carga** (shimmer/spinner), **vacío** y
+  **error** (con reintentar).
 
 ## Pruebas
 
@@ -72,18 +85,25 @@ mensaje con botón **Reintentar**.
 flutter test
 ```
 
-Cubren el caso de uso y el repositorio (variantes `Result`: success/empty/fail) y un
-smoke test del flujo de la pantalla.
+Cubren, con `mocktail` + `ProviderContainer`, los ViewModels de **catálogo**
+(carga Popular/Top Rated, paginación, error), **búsqueda** (término vacío = sin
+búsqueda, sin resultados, error, restaurar vista, búsquedas encadenadas → prevalece
+la última) y **detalle** (éxito/error), más widget tests de **debounce** real,
+render del **catálogo** y del **detalle**, y **navegación** listado ↔ detalle ↔ volver.
 
 ## Estado / pendiente
 
-Esta entrega establece únicamente la base arquitectónica. Pendiente (features reales):
-listados Popular/Top Rated, detalle, buscador, e integración real con la API de TMDB
-(sustituyendo el `MovieMockDataSource` por una implementación HTTP, sin reorganizar carpetas).
+Implementadas las tres pantallas (catálogo, búsqueda, detalle) sobre el design system.
+Posibles mejoras futuras: dominio de **Series** (endpoints `/tv/*`), persistencia de
+favoritos/watchlist, y empaquetar la fuente Inter (hoy se usa la familia del sistema
+con la misma escala tipográfica).
 
 ## Uso de IA
 
-La estructura, el modelado y los artefactos de especificación (`specs/001-arquitectura-base/`)
-se generaron con asistencia de IA (Claude Code) mediante el flujo Spec Kit
-(`/speckit-specify` → `/clarify` → `/plan` → `/tasks` → `/analyze` → `/implement`),
-con revisión y decisiones de diseño validadas manualmente.
+Todo el proyecto se desarrolló con asistencia de IA (Claude Code) mediante el flujo
+Spec Kit (`/speckit-specify` → `/clarify` → `/plan` → `/tasks` → `/implement`) sobre
+tres features versionadas en `specs/` (`001-arquitectura-base`, `002-tmdb-peliculas-reales`,
+`003-catalogo-detalle-busqueda`). El **design system** (tema Netflix + componentes
+Atomic Design) y su **verificación de calidad** (tokens, reutilización, regla de
+widgets como clases, accesibilidad) los produjo un subagente especializado de UI/UX.
+Las decisiones de diseño y arquitectura se revisaron y validaron manualmente.

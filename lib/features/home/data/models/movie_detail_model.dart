@@ -1,40 +1,40 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../../domain/entities/movie_detail.dart';
-import 'genre_model.dart';
+import '../../domain/enums/movie_genre.dart';
 
-part 'movie_detail_model.freezed.dart';
 part 'movie_detail_model.g.dart';
 
-/// Modelo de detalle (Freezed). Espeja la respuesta de TMDB (`movie/{id}`) y se
-/// transpone a la entidad `MovieDetail` con [toEntity]. No extiende la entidad
-/// porque la forma del JSON difiere (los géneros vienen como `[{id, name}]`).
-@freezed
-class MovieDetailModel with _$MovieDetailModel {
-  const MovieDetailModel._();
+/// Convierte los géneros de TMDB (`[{id, name}]`) a `List<MovieGenre>` (por id).
+class GenresConverter implements JsonConverter<List<MovieGenre>, List<dynamic>?> {
+  const GenresConverter();
 
-  const factory MovieDetailModel({
-    required int id,
-    required String title,
-    @JsonKey(name: 'poster_path') String? posterPath,
-    @JsonKey(name: 'vote_average') @Default(0.0) double voteAverage,
-    @Default('') String overview,
-    @JsonKey(name: 'release_date') String? releaseDate,
-    int? runtime,
-    @Default(<GenreModel>[]) List<GenreModel> genres,
-  }) = _MovieDetailModel;
+  @override
+  List<MovieGenre> fromJson(List<dynamic>? json) => json == null
+      ? const []
+      : json.map((g) => MovieGenre.fromId((g as Map<String, dynamic>)['id'] as int)).toList();
+
+  @override
+  List<dynamic> toJson(List<MovieGenre> genres) =>
+      genres.map((g) => {'id': g.id, 'name': g.label}).toList();
+}
+
+/// Modelo de detalle que **extiende** `MovieDetail` (LSP): es-un `MovieDetail`,
+/// así el repositorio lo devuelve directo como entidad. `fromJson` generado por
+/// json_serializable; los géneros se mapean con [GenresConverter].
+@JsonSerializable(fieldRename: FieldRename.snake, createToJson: false, converters: [GenresConverter()])
+class MovieDetailModel extends MovieDetail {
+  const MovieDetailModel({
+    required super.id,
+    required super.title,
+    super.posterPath,
+    super.backdropPath,
+    super.voteAverage,
+    super.overview,
+    super.releaseDate,
+    super.runtime,
+    super.genres,
+  });
 
   factory MovieDetailModel.fromJson(Map<String, dynamic> json) => _$MovieDetailModelFromJson(json);
-
-  /// Mapeo modelo → entidad de dominio (géneros → nombres).
-  MovieDetail toEntity() => MovieDetail(
-        id: id,
-        title: title,
-        posterPath: posterPath,
-        voteAverage: voteAverage,
-        overview: overview,
-        releaseDate: releaseDate,
-        runtime: runtime,
-        genres: genres.map((g) => g.name).toList(),
-      );
 }
