@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/api/remote/api_response.dart';
+import '../../../../core/api/remote/error_message.dart';
 import '../../../../core/state/ui_state.dart';
 import '../providers/home_providers.dart';
 import 'paged_movies.dart';
@@ -46,43 +46,39 @@ class CatalogViewModel extends Notifier<UIState<CatalogState>> {
         useCases.getPopular(page: 1),
         useCases.getTopRated(page: 1),
       ]);
-      final popular = results[0];
-      final topRated = results[1];
       state = UISuccess(
         CatalogState(
-          popular: PagedMovies(
-              items: popular.items, page: popular.page, hasMore: popular.hasMore),
-          topRated: PagedMovies(
-              items: topRated.items,
-              page: topRated.page,
-              hasMore: topRated.hasMore),
+          popular: PagedMovies.fromPage(results[0]),
+          topRated: PagedMovies.fromPage(results[1]),
         ),
       );
     } catch (e) {
-      state = UIFail(_messageFrom(e));
+      state = UIFail(messageFromError(e));
     }
   }
 
   /// Reintenta la carga inicial (tras un error).
   Future<void> retry() => _load();
 
-  /// Carga la siguiente página de "Populares" y la anexa.
-  Future<void> loadMorePopular() =>
-      _loadMore(isPopular: true);
+  /// Carga automática (scroll) de la siguiente página de cada categoría.
+  Future<void> loadMorePopular() => _loadMore(isPopular: true);
+  Future<void> loadMoreTopRated() => _loadMore(isPopular: false);
 
-  /// Carga la siguiente página de "Mejor valoradas" y la anexa.
-  Future<void> loadMoreTopRated() =>
-      _loadMore(isPopular: false);
+  /// Reintento explícito del usuario tras un fallo de paginación (fuerza pese
+  /// a `loadMoreError`).
+  Future<void> retryLoadMorePopular() => _loadMore(isPopular: true, force: true);
+  Future<void> retryLoadMoreTopRated() => _loadMore(isPopular: false, force: true);
 
-  Future<void> _loadMore({required bool isPopular}) async {
+  Future<void> _loadMore({required bool isPopular, bool force = false}) async {
     final current = state;
     if (current is! UISuccess<CatalogState>) return;
     final paged = isPopular ? current.data.popular : current.data.topRated;
     if (!paged.hasMore || paged.isLoadingMore) return;
+    // Sin auto-reintento tras un fallo: se espera acción del usuario para no
+    // martillar el endpoint en cada frame de scroll.
+    if (paged.loadMoreError && !force) return;
 
-    state = UISuccess(_patch(current.data, isPopular,
-        paged.copyWith(isLoadingMore: true, loadMoreError: false)));
-
+    state = UISuccess(_patch(current.data, isPopular, paged.startLoadingMore()));
     try {
       final useCases = ref.read(movieUseCasesProvider);
       final result = isPopular
@@ -91,31 +87,16 @@ class CatalogViewModel extends Notifier<UIState<CatalogState>> {
       final now = state;
       if (now is! UISuccess<CatalogState>) return;
       final base = isPopular ? now.data.popular : now.data.topRated;
-      state = UISuccess(_patch(
-        now.data,
-        isPopular,
-        base.copyWith(
-          items: [...base.items, ...result.items],
-          page: result.page,
-          hasMore: result.hasMore,
-          isLoadingMore: false,
-        ),
-      ));
+      state = UISuccess(_patch(now.data, isPopular, base.appendPage(result)));
     } catch (_) {
       final now = state;
       if (now is! UISuccess<CatalogState>) return;
       final base = isPopular ? now.data.popular : now.data.topRated;
-      state = UISuccess(_patch(now.data, isPopular,
-          base.copyWith(isLoadingMore: false, loadMoreError: true)));
+      state = UISuccess(_patch(now.data, isPopular, base.failLoadingMore()));
     }
   }
 
   /// Devuelve un `CatalogState` con la categoría indicada reemplazada.
   CatalogState _patch(CatalogState data, bool isPopular, PagedMovies updated) =>
       isPopular ? data.copyWith(popular: updated) : data.copyWith(topRated: updated);
-
-  String _messageFrom(Object e) {
-    if (e is ErrorApiResponse) return e.httpErrorMessage;
-    return 'Ocurrió un error inesperado. Intenta de nuevo.';
-  }
 }

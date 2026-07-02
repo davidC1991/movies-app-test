@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/api/remote/api_response.dart';
+import '../../../../core/api/remote/error_message.dart';
 import '../../../../core/state/ui_state.dart';
 import '../providers/home_providers.dart';
 import 'paged_movies.dart';
@@ -37,12 +37,10 @@ class SearchViewModel extends Notifier<UIState<PagedMovies>> {
       final result = await ref.read(movieUseCasesProvider).search(q, page: 1);
       // Búsquedas encadenadas: prevalece el último término escrito.
       if (_query != q) return;
-      state = UISuccess(
-        PagedMovies(items: result.items, page: result.page, hasMore: result.hasMore),
-      );
+      state = UISuccess(PagedMovies.fromPage(result));
     } catch (e) {
       if (_query != q) return;
-      state = UIFail(_messageFrom(e));
+      state = UIFail(messageFromError(e));
     }
   }
 
@@ -55,38 +53,35 @@ class SearchViewModel extends Notifier<UIState<PagedMovies>> {
   /// Reintenta la búsqueda del término actual (tras un error).
   Future<void> retry() => search(_query);
 
-  /// Carga la siguiente página de resultados y la anexa (scroll infinito).
-  Future<void> loadMore() async {
+  /// Carga automática (scroll) de la siguiente página de resultados.
+  Future<void> loadMore() => _loadMore();
+
+  /// Reintento explícito del usuario tras un fallo de paginación.
+  Future<void> retryLoadMore() => _loadMore(force: true);
+
+  Future<void> _loadMore({bool force = false}) async {
     if (_query.isEmpty) return;
     final current = state;
     if (current is! UISuccess<PagedMovies>) return;
     final paged = current.data;
     if (!paged.hasMore || paged.isLoadingMore) return;
+    if (paged.loadMoreError && !force) return;
 
-    state = UISuccess(paged.copyWith(isLoadingMore: true, loadMoreError: false));
+    final q = _query;
+    state = UISuccess(paged.startLoadingMore());
     try {
-      final result =
-          await ref.read(movieUseCasesProvider).search(_query, page: paged.page + 1);
+      final result = await ref.read(movieUseCasesProvider).search(q, page: paged.page + 1);
+      // El término pudo cambiar durante el await: descarta la página obsoleta.
+      if (_query != q) return;
       final now = state;
       if (now is! UISuccess<PagedMovies>) return;
-      state = UISuccess(
-        now.data.copyWith(
-          items: [...now.data.items, ...result.items],
-          page: result.page,
-          hasMore: result.hasMore,
-          isLoadingMore: false,
-        ),
-      );
+      state = UISuccess(now.data.appendPage(result));
     } catch (_) {
+      if (_query != q) return;
       final now = state;
       if (now is UISuccess<PagedMovies>) {
-        state = UISuccess(now.data.copyWith(isLoadingMore: false, loadMoreError: true));
+        state = UISuccess(now.data.failLoadingMore());
       }
     }
-  }
-
-  String _messageFrom(Object e) {
-    if (e is ErrorApiResponse) return e.httpErrorMessage;
-    return 'Ocurrió un error inesperado. Intenta de nuevo.';
   }
 }

@@ -37,6 +37,7 @@ class CatalogView extends ConsumerWidget {
                 title: 'Populares',
                 paged: data.popular,
                 onLoadMore: notifier.loadMorePopular,
+                onRetryLoadMore: notifier.retryLoadMorePopular,
                 onTapMovie: onTapMovie,
               ),
               const SizedBox(height: AppSpacing.xl),
@@ -44,6 +45,7 @@ class CatalogView extends ConsumerWidget {
                 title: 'Mejor valoradas',
                 paged: data.topRated,
                 onLoadMore: notifier.loadMoreTopRated,
+                onRetryLoadMore: notifier.retryLoadMoreTopRated,
                 onTapMovie: onTapMovie,
               ),
             ]),
@@ -53,39 +55,35 @@ class CatalogView extends ConsumerWidget {
   }
 }
 
-/// Una categoría del catálogo: un `MediaCarousel` que dispara [onLoadMore] al
-/// acercarse al final de su desplazamiento horizontal (scroll infinito).
+/// Una categoría del catálogo: delega en `MediaCarousel` la paginación
+/// (scroll infinito) y el footer de carga/reintento.
 class _CategoryRow extends StatelessWidget {
   final String title;
   final PagedMovies paged;
   final VoidCallback onLoadMore;
+  final VoidCallback onRetryLoadMore;
   final void Function(int movieId) onTapMovie;
 
   const _CategoryRow({
     required this.title,
     required this.paged,
     required this.onLoadMore,
+    required this.onRetryLoadMore,
     required this.onTapMovie,
   });
 
   @override
   Widget build(BuildContext context) {
-    return NotificationListener<ScrollNotification>(
-      onNotification: (notification) {
-        if (notification.metrics.axis == Axis.horizontal &&
-            notification.metrics.pixels >=
-                notification.metrics.maxScrollExtent - 300) {
-          onLoadMore();
-        }
-        return false;
-      },
-      child: MediaCarousel(
-        title: title,
-        items: [
-          for (final Movie movie in paged.items)
-            movie.toCardData(onTap: () => onTapMovie(movie.id)),
-        ],
-      ),
+    return MediaCarousel(
+      title: title,
+      items: [
+        for (final Movie movie in paged.items)
+          movie.toCardData(onTap: () => onTapMovie(movie.id)),
+      ],
+      onEndReached: onLoadMore,
+      isLoadingMore: paged.isLoadingMore,
+      loadMoreFailed: paged.loadMoreError,
+      onRetryLoadMore: onRetryLoadMore,
     );
   }
 }

@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:fluro/fluro.dart';
+import 'package:movies/design_system/design_system.dart';
 
 import '../../../../navigation/route_paths.dart';
 import '../ui/home_screen.dart';
@@ -21,7 +23,13 @@ class HomeRoutes {
       '${RoutePaths.movieDetail}/:id',
       handler: Handler(
         handlerFunc: (context, params) {
-          final id = int.tryParse(params['id']?.first ?? '') ?? 0;
+          final id = int.tryParse(params['id']?.first ?? '');
+          // Ruta malformada (`/movie/abc`): no golpear la API con un id inválido.
+          if (id == null) {
+            return const Scaffold(
+              body: EmptyState(icon: Icons.link_off, title: 'Ruta no válida'),
+            );
+          }
           return MovieDetailScreen(movieId: id);
         },
       ),

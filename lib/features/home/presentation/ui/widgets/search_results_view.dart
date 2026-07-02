@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:movies/design_system/design_system.dart';
 
-import '../../../../../core/api/api_config.dart';
 import '../../../../../core/state/ui_state.dart';
+import '../../viewmodels/media_card_mapper.dart';
 import '../../viewmodels/paged_movies.dart';
 import '../../viewmodels/search_view_model.dart';
 
 /// Contenido de los resultados de búsqueda (sliver): grilla de pósters con sus
-/// estados de carga / sin resultados / error.
+/// estados de carga / sin resultados / error, y footer de paginación.
 class SearchResultsView extends ConsumerWidget {
   final void Function(int movieId) onTapMovie;
 
@@ -35,18 +35,26 @@ class SearchResultsView extends ConsumerWidget {
             message: 'No encontramos películas con ese nombre.',
           ),
         ),
-      UISuccess(:final data) => _ResultsGrid(paged: data, onTapMovie: onTapMovie),
+      UISuccess(:final data) => _ResultsList(
+          paged: data,
+          onTapMovie: onTapMovie,
+          onRetryLoadMore: notifier.retryLoadMore,
+        ),
     };
   }
 }
 
-/// Grilla de pósters de los resultados. El ancho de tarjeta se calcula para
-/// llenar tres columnas manteniendo el ratio de póster 2:3.
-class _ResultsGrid extends StatelessWidget {
+/// Grilla de resultados + footer de paginación (carga/reintentar).
+class _ResultsList extends StatelessWidget {
   final PagedMovies paged;
   final void Function(int movieId) onTapMovie;
+  final VoidCallback onRetryLoadMore;
 
-  const _ResultsGrid({required this.paged, required this.onTapMovie});
+  const _ResultsList({
+    required this.paged,
+    required this.onTapMovie,
+    required this.onRetryLoadMore,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -54,30 +62,70 @@ class _ResultsGrid extends StatelessWidget {
     final double cardWidth =
         (screenWidth - AppSpacing.lg * 2 - AppSpacing.md * 2) / 3;
 
-    return SliverPadding(
+    return SliverMainAxisGroup(
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          sliver: SliverGrid(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: AppSpacing.md,
+              mainAxisSpacing: AppSpacing.lg,
+              // Póster 2:3 (sin título bajo la tarjeta).
+              childAspectRatio: 2 / 3,
+            ),
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                final movie = paged.items[index];
+                // Reutiliza el mapeo Movie → tarjeta (posterPath → URL) del
+                // mismo helper que usa el catálogo, para no duplicarlo.
+                final card = movie.toCardData(onTap: () => onTapMovie(movie.id));
+                return MediaCard(
+                  posterUrl: card.posterUrl,
+                  title: card.title,
+                  rating: card.rating,
+                  onTap: card.onTap,
+                  width: cardWidth,
+                  showTitle: false,
+                );
+              },
+              childCount: paged.items.length,
+            ),
+          ),
+        ),
+        if (paged.isLoadingMore || paged.loadMoreError)
+          SliverToBoxAdapter(
+            child: _GridFooter(
+              isLoading: paged.isLoadingMore,
+              onRetry: paged.loadMoreError ? onRetryLoadMore : null,
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// Footer de la grilla: spinner de "cargando más" o botón de reintento.
+class _GridFooter extends StatelessWidget {
+  final bool isLoading;
+  final VoidCallback? onRetry;
+
+  const _GridFooter({required this.isLoading, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
       padding: const EdgeInsets.all(AppSpacing.lg),
-      sliver: SliverGrid(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          crossAxisSpacing: AppSpacing.md,
-          mainAxisSpacing: AppSpacing.lg,
-          // Póster 2:3 (sin título bajo la tarjeta).
-          childAspectRatio: 2 / 3,
-        ),
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            final movie = paged.items[index];
-            return MediaCard(
-              posterUrl: ApiConfig.posterUrl(movie.posterPath),
-              title: movie.title,
-              rating: movie.voteAverage,
-              width: cardWidth,
-              showTitle: false,
-              onTap: () => onTapMovie(movie.id),
-            );
-          },
-          childCount: paged.items.length,
-        ),
+      child: Center(
+        child: isLoading
+            ? const AppSpinner()
+            : onRetry != null
+                ? FilledButton.icon(
+                    onPressed: onRetry,
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Reintentar'),
+                  )
+                : const SizedBox.shrink(),
       ),
     );
   }

@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/api/remote/api_response.dart';
+import '../../../../core/api/remote/error_message.dart';
 import '../../../../core/state/ui_state.dart';
 import '../../domain/entities/movie_detail.dart';
 import '../providers/home_providers.dart';
@@ -25,15 +25,10 @@ class MovieDetailViewModel extends FamilyNotifier<UIState<MovieDetail>, int> {
       final detail = await ref.read(movieUseCasesProvider).getDetail(id);
       state = UISuccess(detail);
     } catch (e) {
-      state = UIFail(_messageFrom(e));
+      state = UIFail(messageFromError(e));
     }
   }
 
   /// Reintenta la carga del detalle (tras un error).
   Future<void> retry() => _load(arg);
-
-  String _messageFrom(Object e) {
-    if (e is ErrorApiResponse) return e.httpErrorMessage;
-    return 'Ocurrió un error inesperado. Intenta de nuevo.';
-  }
 }
